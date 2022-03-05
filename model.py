@@ -1,26 +1,18 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
-# !pip3 install pytorch_lightning
-# !pip3 install opencv-python
-# !pip3 install scikit-learn
-
-
-# In[2]:
-
-
 import torch
 from torch.utils.data import Dataset, DataLoader, Subset, random_split
 from torch import nn
 from torch.nn import functional as F
+import torchvision.transforms as transforms
+from torchvision import models
 
 import numpy as np
 import matplotlib.pyplot as plt
 from copy import copy
 from Datasets import Modes, ODIR5K
+
+from sklearn import metrics
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
 
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import CSVLogger
@@ -29,27 +21,12 @@ from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 import cv2
 
-import torchvision.transforms as transforms
-from torchvision import models
-
-from sklearn import metrics
-from sklearn import preprocessing
-from sklearn.model_selection import train_test_split
-
-
-# In[3]:
-
-
 BS = 32
 INPUT_IMG = 299
 debug=True
 LR = 5e-5
 MAX_EPOCHS = 50
 TRAIN_SIZE = 0.8
-
-
-# In[4]:
-
 
 class Identity(nn.Module):
     def __init__(self):
@@ -200,7 +177,6 @@ def get_color_distortion(s=1.0):
     color_distort = transforms.Compose([rnd_color_jitter, rnd_gray])
     return color_distort
 
-
 def plot_confusion_matrix(cm,
                           target_names,
                           auc,
@@ -283,7 +259,6 @@ def plot_confusion_matrix(cm,
     plt.tight_layout()
     plt.show()
 
-
 def plot_cm(y_true, y_pred, figsize=(10,10)):
     cm = confusion_matrix(y_true, y_pred, labels=np.unique(y_true))
     cm_sum = np.sum(cm, axis=1, keepdims=True)
@@ -306,9 +281,6 @@ def plot_cm(y_true, y_pred, figsize=(10,10)):
     cm.columns.name = 'Predicted'
     fig, ax = plt.subplots(figsize=figsize)
     sns.heatmap(cm, cmap= "YlGnBu", annot=annot, fmt='', ax=ax)
-
-# In[5]:
-
 
 # logger = None
 # debug = False
@@ -386,10 +358,3 @@ def plot_cm(y_true, y_pred, figsize=(10,10)):
 
 # trainer.fit(model, dl_train, dl_val)
 # trainer.test(model, dl_test)
-
-
-# In[ ]:
-
-
-
-

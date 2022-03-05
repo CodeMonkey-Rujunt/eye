@@ -5,16 +5,16 @@ import os
 
 import ODIR_evaluation
 
-CSVFILE = "/work/ocular-dataset/full_df.csv"
-FEATHERFILE = "/work/ocular-dataset/features/vgg16-imagenet.ft"
-XLSXFILE = "/work/ocular-dataset/ODIR-5K/data.xlsx"
+CSVFILE = '/work/ocular-dataset/full_df.csv'
+FEATHERFILE = '/work/ocular-dataset/features/vgg16-imagenet.ft'
+XLSXFILE = '/work/ocular-dataset/ODIR-5K/data.xlsx'
 
-TRAIN_GT = "/work/exps/train_gt.csv"
-VAL_GT = "/work/exps/val_gt.csv"
-EYE_TRAIN_GT = "/work/exps/eye_labels_train.csv"
-EYE_VAL_GT = "/work/exps/eye_labels_val.csv"
+TRAIN_GT = '/work/exps/train_gt.csv'
+VAL_GT = '/work/exps/val_gt.csv'
+EYE_TRAIN_GT = '/work/exps/eye_labels_train.csv'
+EYE_VAL_GT = '/work/exps/eye_labels_val.csv'
 
-VAL_GT_XLSX = "/work/exps/val_gt.xlsx"
+VAL_GT_XLSX = '/work/exps/val_gt.xlsx'
 
 GT_HEADER = ['ID', 'N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
 
@@ -75,11 +75,10 @@ class ODIR_Dataset:
 
         eye_val = pd.read_csv(EYE_VAL_GT)
         self.X_eye_val = eye_val['ID'].to_numpy()
-    
 
     def evaluate(self, y_val_res, resultfile):
         if resultfile in (TRAIN_GT, VAL_GT, VAL_GT_XLSX):
-            raise Exception("resultfile with same names as gt files")
+            raise Exception('resultfile with same names as gt files')
 
         if os.path.isfile(resultfile) is True:
             os.remove(resultfile)

@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
-""" This file is only an example approach for evaluating the classification 
-    performance in Ocular Disease Intelligent Recognition (ODIR-2019). 
-    
-    To run this file, sklearn and numpy packages are required 
-    in a Python 3.0+ environment.
-    
-    Author: Shanggong Medical Technology, China.
-    Date: July, 2019.
-"""
+'''
+This file is only an example approach for evaluating the classification 
+performance in Ocular Disease Intelligent Recognition (ODIR-2019). 
+
+To run this file, sklearn and numpy packages are required 
+in a Python 3.0+ environment.
+
+Author: Shanggong Medical Technology, China.
+Date: July, 2019.
+'''
 from sklearn import metrics
 import numpy as np
 import sys
@@ -20,7 +20,6 @@ def importGT(filepath):
     table = data.sheets()[0]
     data = [ [int(table.row_values(i,0,1)[0])] + table.row_values(i,-8) for i in range(1,table.nrows)]
     return np.array(data)
-
 
 # read the submitted predictions in csv format and output case id and eight labels 
 def importPR(gt_data,filepath):
@@ -55,7 +54,6 @@ def importPR(gt_data,filepath):
         missing_results = 1
     return pr_data,wrong_col_order,wrong_row_order,missing_results
 
-
 #calculate kappa, F-1 socre and AUC value
 def ODIR_Metrics(gt_data, pr_data):
     th = 0.5
@@ -67,22 +65,21 @@ def ODIR_Metrics(gt_data, pr_data):
     final_score = (kappa+f1+auc)/3.0
     return kappa, f1, auc, final_score
 
-
 def ODIR_Evaluation(GT_filepath, PR_filepath):
     gt_data = importGT(GT_filepath)
     pr_data, wrong_col_order, wrong_row_order, missing_results = importPR(gt_data,PR_filepath)
 
     if wrong_col_order:
-        print(sys.argv[0], "\n Error: Submission with disordered columns.")
+        print(sys.argv[0], '\n Error: Submission with disordered columns.')
         sys.exit(-1)
         
     if wrong_row_order:
-        print(sys.argv[0], "\n Error: Submission with disordered rows.")
+        print(sys.argv[0], '\n Error: Submission with disordered rows.')
         sys.exit(-1)
         
     if missing_results:
-        print(sys.argv[0], "\n Error: Incomplete submission with missing data.")
+        print(sys.argv[0], '\n Error: Incomplete submission with missing data.')
         sys.exit(-1)
         
     kappa, f1, auc, final_score = ODIR_Metrics(gt_data[:,1:], pr_data[:,1:])
-    print("kappa score:", kappa, " f-1 score:", f1, " AUC vlaue:", auc, " Final Score:", final_score)
+    print('kappa score:', kappa, ' f-1 score:', f1, ' AUC vlaue:', auc, ' Final Score:', final_score)
