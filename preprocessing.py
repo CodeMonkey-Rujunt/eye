@@ -56,7 +56,7 @@ def CEH_cut_pipeline(img):
 
 # Read image per image
 def load_images_from_folder(path_folder): 
-    PROC_FOLDER = path_folder + "_procEH/"
+    PROC_FOLDER = path_folder + '_procEH/'
     if os.path.isdir(os.path.dirname(PROC_FOLDER)) is False:
         os.makedirs(os.path.dirname(PROC_FOLDER))
 
@@ -69,4 +69,4 @@ def load_images_from_folder(path_folder):
             cv2.imwrite(path, img_proc)
 
 # CHANGE THE DIRECTORY OF IMAGES
-#load_images_from_folder("test2")
+#load_images_from_folder('test2')
