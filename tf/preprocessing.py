@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 # create a CLAHE with L channel(Contrast Limited Adaptive Histogram Equalization)
-def pre_proc_CEH2(img):
+def CEH2(img):
     img_lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
     lab_planes = cv2.split(img_lab)
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
@@ -13,7 +13,7 @@ def pre_proc_CEH2(img):
     return cl1
 
 # create a CLAHE (Contrast Limited Adaptive Histogram Equalization)
-def pre_proc_CEH(img):
+def CEH(img):
     img_bw = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
     #clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize)
@@ -21,7 +21,7 @@ def pre_proc_CEH(img):
     return cl1
 
 # create Equalization Histogram
-def pre_proc_EH(img):
+def EH(img):
     img_bw = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     equ = cv2.equalizeHist(img_bw)
     eh1 = np.hstack((img_bw, equ))
@@ -51,7 +51,7 @@ def cut_and_resize_to_original_img(img):
 def CEH_cut_pipeline(img):
     img_uint = img.astype(np.uint8)
     img1 = cut_and_resize_to_original_img(img_uint)
-    img2 = pre_proc_CEH2(img1)
+    img2 = CEH2(img1)
     return img2
 
 # Read image per image
@@ -64,6 +64,6 @@ def load_images_from_folder(path_folder):
         img = cv2.imread(os.path.join(path_folder, filename))
         if img is not None:
             img_proc = cut_img(img)
-            img_proc = pre_proc_EH(img) # change with pre_proc_EH
+            img_proc = EH(img) # change with EH
             path = os.path.join(PROC_FOLDER, filename)
             cv2.imwrite(path, img_proc)

@@ -142,18 +142,18 @@ def test():
     labels = []
     y_pred = []
     net.eval()
-    for x, y in test_dataloader:
+    for images, labels in test_dataloader:
         print(index, batch)
-        x = x.to(device)
-        y = y.to(device)
+        images = images.to(device)
+        labels = labels.to(device)
 
         with torch.no_grad():
-            representations = net(x).detach()
-            mlp_preds = linear_clf(representations)
+            representations = net(images).detach()
+            logits = linear_clf(representations)
 
-        probs = F.softmax(mlp_preds, dim=1)
+        probs = F.softmax(logits, dim=1)
         prob_preds.append(probs.cpu().numpy())
-        labels.extend(y.cpu().numpy())
+        labels.extend(labels.cpu().numpy())
         y_pred.extend(torch.argmax(probs, dim=1).cpu().numpy())
     
     prob_preds = np.concatenate(prob_preds)
