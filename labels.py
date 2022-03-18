@@ -21,10 +21,10 @@ def main():
             keyword_dict[keyword] = keyword_dict.get(keyword, 0) + 1 
 
     keywords = sorted(keyword_dict.items(), key=lambda x: x[1], reverse=True)
-    print('\nThere are %d keywords.' % (len(keywords)))
+    print('There are %d keywords.' % (len(keywords)))
     print(pd.DataFrame(keywords, columns=['keyword', 'count']))
 
-    print('\nAge stats:', df['Patient Age'].describe().to_dict())
+    print('Age stats:', df['Patient Age'].describe().to_dict())
     print('Sex stats:', df.groupby('Patient Sex').size().to_dict())
 
 if __name__ == '__main__':

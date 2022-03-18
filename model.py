@@ -23,68 +23,9 @@ import cv2
 
 BS = 32
 INPUT_IMG = 299
-debug=True
 LR = 5e-5
 MAX_EPOCHS = 50
-TRAIN_SIZE = 0.8
 
-class Identity(nn.Module):
-    def __init__(self):
-        super().__init__()
-    
-    def forward(self, x):
-        return x
-
-class SwavFinetuning(pl.LightningModule):
-    def __init__(self, freeze=False, classes=2):
-        super().__init__()
-        self.model = torch.hub.load('facebookresearch/swav', 'resnet50')
-        
-        self.d_dim = self.model.fc.in_features
-        
-        self.model.fc = Identity()
-        
-        if freeze:
-            for p in model.parameters():
-                p.requires_grad = False
-        
-        self.classes = classes
-        self.linear_clf = nn.Linear(self.d_dim, self.classes)
-
-    def forward(self, images):        
-        return self.model(images)
-
-    def training_step(self, batch, batch_idx):
-        images, labels = batch
-        representations = self(images)
-        logits = self.linear_clf(representations)
-        
-        loss = F.cross_entropy(logits, labels)
-        self.log('train_loss', loss, on_epoch=True, on_step=False, prog_bar=True, sync_dist=True)
-
-        return loss
-        
-    def to_device(self, batch, device):
-        x, y = batch
-        x = x.to(device)
-        y = y.to(device)
-        return x, y
-    
-    
-    def shared_step(self, batch, step):
-        images, labels = batch
-        representations = self(images).detach()
-        
-        logits = self.linear_clf(representations)
-        loss = F.cross_entropy(logits, labels)
-        
-        self.log(f'{step}_loss', loss, on_epoch=True, on_step=False, prog_bar=True, sync_dist=True)
-        
-        return {"probs": F.softmax(logits, dim=1),
-                "labels": labels
-            
-        }
-    
 #     def shared_end(self, outputs, step):
 #         prob_preds = []
 #         labels = []

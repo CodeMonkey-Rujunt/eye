@@ -121,11 +121,11 @@ for images, labels in data_loader:
 
 prob_preds = np.concatenate(prob_preds)
 auc = metrics.roc_auc_score(labels, prob_preds, average='weighted', multi_class='ovo')
-#log(f'auc_score_{step}', auc, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
+#log('auc_score_{step}', auc, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
 
 labels_onehot = preprocessing.OneHotEncoder(sparse=False).fit_transform(np.array(labels).reshape(len(labels), 1))
 final_score = odir_metric(labels_onehot, prob_preds)
-#log(f'odir_score_{step}', final_score, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
+#log('odir_score_{step}', final_score, on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
     
 #trainer = pl.Trainer(gpus=[2], max_epochs=epochs)
 #trainer.fit(model, train_loader, val_loader)
