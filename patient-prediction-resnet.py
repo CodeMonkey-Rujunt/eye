@@ -5,7 +5,7 @@ import torch
 import torchvision.transforms as transforms
 from itertools import islice
 import csv
-from os.path import isfile, join
+from os
 
 import model
 
@@ -17,19 +17,18 @@ image_base = 'ODIR-5K/Training Images/'
 fttrain = 'exps/2-final/train_proba.ft'
 ftval = 'exps/2-final/val_proba.ft'
 
-model_path = 'exps/2-final/swav-r50-epoch=27-odir_score_val=0.837-val_loss=0.929-auc_score_val=0.884.ckpt'
+model_path = 'model/swav.pt'
 cnn = model.SwavFinetuning.load_from_checkpoint(model_path, classes=8)
 
-device = 'cuda'
+device = torch.device('cuda')
 
-mean = [0.485, 0.456, 0.406]
-std = [0.228, 0.224, 0.225]
-trans = []
+normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225])
 randomresizedcrop = transforms.RandomResizedCrop(299)
-trans = transforms.Compose([
+transform = transforms.Compose([
     randomresizedcrop,
     transforms.ToTensor(),
-    transforms.Normalize(mean=mean, std=std)])
+    normalize,
+    ])
 
 cnn = cnn.to(device).eval()
 
@@ -49,10 +48,10 @@ for csvfile, ftfile in ((csvtrain, fttrain), (csvval, ftval)):
         
         for l in islice(csvreader,1,None):
             for side in ('left', 'right'):
-                image_path = join(image_base, l[0] + '_{}.jpg'.format(side))
-                if isfile(image_path):
+                image_path = '%s/%s_%s.jpg' % (image_base, l[0], side))
+                if os.path.exists(image_path):
                     image = Image.open(image_path).convert('RGB')
-                    torch_img = trans(image).unsqueeze(0).to(device)
+                    torch_img = transform(image).unsqueeze(0).to(device)
                     
                     with torch.no_grad():
                         representations = cnn(torch_img).detach()

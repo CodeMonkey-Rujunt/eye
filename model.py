@@ -8,7 +8,7 @@ from torchvision import models
 import numpy as np
 import matplotlib.pyplot as plt
 from copy import copy
-from Datasets import Modes, ODIR5K
+from Datasets import ODIR5K
 
 from sklearn import metrics
 from sklearn import preprocessing
@@ -300,7 +300,7 @@ def plot_cm(y_true, y_pred, figsize=(10,10)):
 # train_t = trans
 
 # #init the dataset withou any augmentation
-# full_train = ODIR5K(Modes.train, None)
+# full_train = ODIR5K('train', None)
 
 # #get the train size
 # train_size = int(TRAIN_SIZE * len(full_train))
@@ -326,7 +326,7 @@ def plot_cm(y_true, y_pred, figsize=(10,10)):
 # test_t = trans
 # odir_val.dataset.aug = test_t
 
-# odir_test = ODIR5K(Modes.test, test_t)
+# odir_test = ODIR5K('test', test_t)
 # logger = CSVLogger("/odir5k/exps/2-final/pl-logs", name="odir5k-swav-ft")
 # dl_train = DataLoader(odir_train, batch_size=BS, shuffle=True, num_workers=4)
 # dl_val = DataLoader(odir_val, batch_size=BS, shuffle=False, num_workers=4)

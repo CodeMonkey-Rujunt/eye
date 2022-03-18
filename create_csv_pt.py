@@ -20,8 +20,8 @@ def create_csv(split='train'):
     df = pd.DataFrame(records, columns=['path', 'label'])
     print(df)
 
-    csv_name = f'pytorch_fake{split}.csv'
-    df.to_csv(csv_name, index=False)
+    filename = 'pytorch_fake{split}.csv'
+    df.to_csv(filename, index=False)
 
 if __name__ == '__main__':
     create_csv('train')
