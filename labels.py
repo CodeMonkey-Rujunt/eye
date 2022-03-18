@@ -12,20 +12,30 @@ def main():
 
     book = pd.ExcelFile('data/labels/ODIR-5K_Training_Annotations(Updated)_V2.xlsx')
     df = book.parse(book.sheet_names[0], index_col=0)
-
     print(df)
-
-    keyword_dict = dict()
-    for keywords in df['Left-Diagnostic Keywords'].tolist() + df['Right-Diagnostic Keywords'].tolist():
-        for keyword in keywords.split('，'):
-            keyword_dict[keyword] = keyword_dict.get(keyword, 0) + 1 
-
-    keywords = sorted(keyword_dict.items(), key=lambda x: x[1], reverse=True)
-    print('There are %d keywords.' % (len(keywords)))
-    print(pd.DataFrame(keywords, columns=['keyword', 'count']))
 
     print('Age stats:', df['Patient Age'].describe().to_dict())
     print('Sex stats:', df.groupby('Patient Sex').size().to_dict())
+
+    keyword_dict = dict()
+    for index, row in df.iterrows():
+        for keyword in row['Left-Diagnostic Keywords'].split('，'):
+            for label, value in zip(df.columns[6:], row['N':]):
+                if value:
+                    print(keyword, label, value)
+            #keyword_dict[keyword] = keyword_dict.get(keyword, 0) + 1 
+
+        '''
+        for keyword in row['Right-Diagnostic Keywords'].split('，'):
+            print(keyword, row['N':].tolist())
+            #keyword_dict[keyword] = keyword_dict.get(keyword, 0) + 1 
+        '''
+
+    '''
+    keywords = sorted(keyword_dict.items(), key=lambda x: x[1], reverse=True)
+    print('There are %d keywords.' % (len(keywords)))
+    print(pd.DataFrame(keywords, columns=['keyword', 'count']).head(20))
+    '''
 
 if __name__ == '__main__':
     main()

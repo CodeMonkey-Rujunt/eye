@@ -8,6 +8,7 @@ XLSXFILE = 'data/labels/data.xlsx'
 
 TRAIN_GT = 'labels/train_gt.csv'
 VAL_GT = 'labels/val_gt.csv'
+
 EYE_TRAIN_GT = 'labels/eye_labels_train.csv'
 EYE_VAL_GT = 'labels/eye_labels_val.csv'
 
@@ -18,8 +19,8 @@ GT_HEADER = ['ID', 'N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
 # read the ground truth from xlsx file and output case id and eight labels 
 def import_gt(filepath):
     data = pd.ExcelFile(filepath)
-    table = book.parse(book.sheet_names[0])
-    data = [[int(table.row_values(i, 0, 1)[0])] + table.row_values(i, -8) for i in range(1, table.nrows)]
+    df = book.parse(book.sheet_names[0])
+    data = [[int(df.row_values(i, 0, 1)[0])] + df.row_values(i, -8) for i in range(1, df.nrows)]
 
     return np.array(data)
 
@@ -30,12 +31,12 @@ def import_pred(gt_data, filepath):
     pr_data = np.array(pr_data)
     
     # Sort columns if they are not in predefined order
-    order = ['ID','N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
+    order = ['ID', 'N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
     order_index = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     order_dict = { item: ind for ind, item in enumerate(order) }
     sort_index = [order_dict[item] for ind, item in enumerate(header) if item in order_dict]
     wrong_col_order = 0
-    if(sort_index != order_index):
+    if (sort_index != order_index):
         wrong_col_order = 1
         pr_data[:, order_index] = pr_data[:, sort_index] 
     
@@ -44,7 +45,7 @@ def import_pred(gt_data, filepath):
     order_dict = { item: ind for ind, item in enumerate(gt_data[:, 0]) }
     order_index = [ v for v in order_dict.values() ]
     sort_index = [order_dict[item] for ind, item in enumerate(pr_data[:, 0]) if item in order_dict]
-    if(sort_index != order_index):
+    if (sort_index != order_index):
         wrong_row_order = 1
         pr_data[order_index, :] = pr_data[sort_index, :]
         
@@ -54,18 +55,6 @@ def import_pred(gt_data, filepath):
         missing_results = 1
 
     return pr_data, wrong_col_order, wrong_row_order, missing_results
-
-# calculate kappa, F-1 socre and AUC value
-def ODIR_Metrics(gt_data, pr_data):
-    th = 0.5
-    gt = gt_data.flatten()
-    pr = pr_data.flatten()
-    kappa = metrics.cohen_kappa_score(gt, pr > th)
-    f1 = metrics.f1_score(gt, pr > th, average='micro')
-    auc = metrics.roc_auc_score(gt, pr)
-    final_score = (kappa + f1 + auc) / 3.0
-
-    return kappa, f1, auc, final_score
 
 class ODIR_Dataset:
     def __init__(self):
@@ -81,8 +70,8 @@ class ODIR_Dataset:
         val_set = set(df_val_gt['ID'].to_numpy())
 
         self.X_train = np.zeros([len(train_set)*2], np.object)
-        self.X_train_id = np.zeros([len(train_set)], np.object)
         self.y_train = np.zeros([len(train_set)*2, 8], np.int)
+        self.X_train_id = np.zeros([len(train_set)], np.object)
         self.X_val = np.zeros([len(val_set)*2], np.object)
         self.X_val_id = np.zeros([len(val_set)], np.object)
 
@@ -95,16 +84,13 @@ class ODIR_Dataset:
                 self.y_train[2*i_train] = [int(i) for i in labels_dict[row['Left-Fundus']][1:-1].split(', ')]
                 self.X_train[2*i_train + 1] = row['Right-Fundus']
                 self.y_train[2*i_train + 1] = [int(i) for i in labels_dict[row['Right-Fundus']][1:-1].split(', ')]
-
                 self.X_train_id[i_train] = row['ID']
-
                 i_train += 1
+
             elif row['ID'] in val_set:
                 self.X_val[2*i_test] = row['Left-Fundus']
                 self.X_val[2*i_test + 1] = row['Right-Fundus']
-
                 self.X_val_id[i_test] = row['ID']
-
                 i_test += 1
         
         eye_train = pd.read_csv(EYE_TRAIN_GT)
@@ -144,5 +130,14 @@ class ODIR_Dataset:
         if missing_results:
             sys.exit(sys.argv[0], 'Error: Incomplete submission with missing data.')
             
-        kappa, f1, auc, final_score = ODIR_Metrics(gt_data[:, 1:], pr_data[:, 1:])
+        # calculate kappa, F-1 score and AUC value
+        threshold = 0.5
+        gt = gt_data[:, 1:].flatten()
+        pr = pr_data[:, 1:].flatten()
+
+        kappa = metrics.cohen_kappa_score(gt, pr > threshold)
+        f1 = metrics.f1_score(gt, pr > threshold, average='micro')
+        auc = metrics.roc_auc_score(gt, pr)
+        final_score = (kappa + f1 + auc) / 3.0
+
         print('kappa score:', kappa, 'f-1 score:', f1, 'AUC vlaue:', auc, 'Final Score:', final_score)
