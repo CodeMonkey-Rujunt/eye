@@ -68,14 +68,6 @@ for csvfile, ftfile in ((csvtrain, fttrain), (csvval, ftval)):
             y_true[count] = [int(label) for label in l[1:9]]
             count+= 1
 
-        print("Converting DataFrame...")
-
-        df = pd.DataFrame({'id':patient_id,
-                'eyes_feature':[f for f in feature_matrix],
-                'y_true':[y for y in y_true]})
-
-        print("Saving DataFrame")
+        df = pd.DataFrame({'id':patient_id, 'eyes_feature':[f for f in feature_matrix], 'y_true':[y for y in y_true]})
 
         df.to_feather(ftfile)
-            
-                    

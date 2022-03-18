@@ -17,16 +17,16 @@ LR = 1e-3
 
 NN_LAYERS = [3072, 50, 8]
 
-TRAINFT = "train_features.ft"
-VALFT = "val_features.ft"
+TRAINFT = 'train_features.ft'
+VALFT = 'val_features.ft'
 
-EXP_NAME = "pacient_pred_baseline_features"
+EXP_NAME = 'pacient_pred_baseline_features'
 
 set_seed(SEED)
 np.random.seed(SEED)
 random.seed(SEED)
 
-#calculate kappa, F-1 socre and AUC value
+# calculate kappa, F-1 socre and AUC value
 def odir_metrics(gt_data, pr_data):
     th = 0.5
     gt = gt_data.numpy().flatten()

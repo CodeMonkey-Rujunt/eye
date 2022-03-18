@@ -10,13 +10,13 @@ import numpy as np
 import pandas as pd
 import csv
 
-csvtrain = "/work/exps/train_gt.csv"
-csvval = "/work/exps/val_gt.csv"
+csvtrain = '/work/exps/train_gt.csv'
+csvval = '/work/exps/val_gt.csv'
 
-fttrain = "/work/exps/2-final/train_proba.ft"
-ftval = "/work/exps/2-final/val_proba.ft"
+fttrain = '/work/exps/2-final/train_proba.ft'
+ftval = '/work/exps/2-final/val_proba.ft'
 
-image_base = "/work/ocular-dataset/ODIR-5K/Training Images/"
+image_base = '/work/ocular-dataset/ODIR-5K/Training Images/'
 
 base_model = EfficientNetB3()
 
@@ -29,10 +29,10 @@ model = Model(base_model.input, out)
 model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy', 
 metrics=['AUC'])
 
-model.load_weights("ft_efficientnetb3_top_dropout_lr-4_best_model.h5")
+model.load_weights('ft_efficientnetb3_top_dropout_lr-4_best_model.h5')
 
 for csvfile, ftfile in ((csvtrain, fttrain), (csvval, ftval)):
-    with open(csvfile, "r") as fp:
+    with open(csvfile, 'r') as fp:
         csvreader = csv.reader(fp)
         lines = len(list(islice(csvreader,1,None)))
 
@@ -46,8 +46,8 @@ for csvfile, ftfile in ((csvtrain, fttrain), (csvval, ftval)):
         csvreader = csv.reader(fp)
 
         for l in islice(csvreader,1,None):
-            for side in ("left", "right"):
-                image_path = join(image_base, l[0] + "_{}.jpg".format(side))
+            for side in ('left', 'right'):
+                image_path = join(image_base, l[0] + '_{}.jpg'.format(side))
 
                 if isfile(image_path) is True:
                     image = load_img(image_path, target_size=(300,300))
@@ -65,14 +65,6 @@ for csvfile, ftfile in ((csvtrain, fttrain), (csvval, ftval)):
             y_true[count] = [int(label) for label in l[1:9]]
             count+= 1
 
-        print("Converting DataFrame...")
-
-        df = pd.DataFrame({'id':patient_id,
-                'eyes_feature':[f for f in feature_matrix],
-                'y_true':[y for y in y_true]})
-
-        print("Saving DataFrame")
+        df = pd.DataFrame({'id':patient_id, 'eyes_feature':[f for f in feature_matrix], 'y_true':[y for y in y_true]})
 
         df.to_feather(ftfile)
-            
-                    

@@ -12,16 +12,14 @@ out = Dense(8, activation='softmax', name='predictions')(out)
 model = Model(base_model.input, out)
 
 # We compile the model
-model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy', 
-metrics=['AUC'])
+model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy', metrics=['AUC'])
 
-model.load_weights("ft_efficientnetb3_top_dropout_lr-4_best_model.h5")
+model.load_weights('ft_efficientnetb3_top_dropout_lr-4_best_model.h5')
 
 datagen = ImageDataGenerator()
-flow = datagen.flow_from_directory("/work/ocular-dataset/ODIR-5K-Flow/fake-test")
+flow = datagen.flow_from_directory('/work/ocular-dataset/ODIR-5K-Flow/fake-test')
 
 loss, auc = model.evaluate(flow)
 
-print("loss: ", str(loss))
-print("auc: ", str(auc))
-
+print('loss', str(loss))
+print('auc', str(auc))
