@@ -41,10 +41,10 @@ if __name__ == '__main__':
         ])
     
     dataset = ODIR5K('train', transform)
-    dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
 
     for image, label in dataloader:
-        image = np.transpose(image.numpy(), (1, 2, 0))
+        image = image.view(3, 500, 500).permute(1, 2, 0)
         plt.imshow(image)
         plt.savefig('figure/input.png')
 

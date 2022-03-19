@@ -1,13 +1,12 @@
 import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader, random_split
+from torch.utils.data import DataLoader
 from torch import nn
 from torch.nn import functional as F
 import torchvision.transforms as transforms
 from sklearn import metrics
 from sklearn import preprocessing
 import cv2
-from copy import copy
 
 import datasets
 
@@ -54,37 +53,21 @@ def data_load(batch_size=32):
         normalize,
         ])
 
-    # init the dataset withou any augmentation
-    full_train = datasets.ODIR5K('train', None)
+    # init the dataset and augmentations
+    train_dataset = datasets.ODIR5K('train', transform)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
 
-    # calculate the validation size
-    train_size = int(0.8 * len(full_train))
-    val_size = len(full_train) - train_size
-
-    # split the datasts
-    odir_train, odir_val = random_split(full_train, [train_size, val_size], generator=torch.Generator().manual_seed(42))
-
-    # trick to disantangle the agumentations variable from train to validation
-    odir_train.dataset = copy(full_train)
-
-    # set the train augmentations
-    odir_train.dataset.augmentations = transform
-
-    # build the validation augmentations
+    # build the test augmentations
     transform = transforms.Compose([
         randomresizedcrop,
         transforms.ToTensor(),
         normalize,
         ])
 
-    odir_val.dataset.augmentations = transform
-    odir_test = datasets.ODIR5K('test', transform)
+    test_dataset = datasets.ODIR5K('test', transform)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
 
-    train_loader = DataLoader(odir_train, batch_size=batch_size, shuffle=True, num_workers=0)
-    val_loader = DataLoader(odir_val, batch_size=batch_size, shuffle=False, num_workers=0)
-    test_loader = DataLoader(odir_test, batch_size=batch_size, shuffle=False, num_workers=0)
-
-    return train_loader
+    return train_loader, test_loader
 
 def test():
     prob_preds = []
@@ -112,11 +95,10 @@ def test():
     final_score = odir_metric(labels_onehot, prob_preds)
     print(final_score)
     
-    if step == 'test':
-        cm = metrics.confusion_matrix(labels, y_pred)
-        target_names = ['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
-        plot_confusion_matrix(cm, target_names=target_names, auc=auc, normalize=False)
-        print(cm)
+    cm = metrics.confusion_matrix(labels, y_pred)
+    target_names = ['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
+    plot_confusion_matrix(cm, target_names=target_names, auc=auc, normalize=False)
+    print(cm)
 
 class Identity(nn.Module):
     def __init__(self):
@@ -128,7 +110,7 @@ class Identity(nn.Module):
 def main(epochs=20, classes=8, learning_rate=5e-5, freeze=False):
     device = torch.device('cuda:1')
 
-    train_loader = data_load()
+    train_loader, test_loader = data_load()
 
     net = torch.hub.load('facebookresearch/swav', 'resnet50')
     net = net.to(device)
@@ -145,28 +127,36 @@ def main(epochs=20, classes=8, learning_rate=5e-5, freeze=False):
 
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
-    y_pred = []
-    y_true = []
+    #y_true = []
+    #y_pred = []
     net.train()
     for epoch in range(epochs):
-        for images, labels in train_loader:
+        train_loss = 0
+        for index, (images, labels) in enumerate(train_loader, 1):
             images = images.to(device)
             labels = labels.to(device)
 
-            representations = net(images).detach()
+            representations = net(images) #.detach()
             logits = linear_clf(representations)
             loss = F.cross_entropy(logits, labels)
+            train_loss += loss.item()
 
             probs = F.softmax(logits, dim=1)
-            y_pred += probs.detach().cpu()
-            y_true += labels.detach().cpu()
+            #y_true.append(labels.detach().cpu().numpy())
+            #y_pred.append(probs.detach().cpu())
 
+            print('\repoch %2d batch %2d/%2d loss %5.3f' % (epoch+1, index, len(train_loader), train_loss / index), end='')
+
+        print('')
+
+        '''
         auc = metrics.roc_auc_score(y_true, y_pred, average='weighted', multi_class='ovo')
         print(auc)
 
         labels_onehot = preprocessing.OneHotEncoder(sparse=False).fit_transform(np.array(y_true).reshape(len(y_true), 1))
         final_score = odir_metric(labels_onehot, y_pred)
         print(final_score)
+        '''
 
 if __name__ == '__main__':
     main()
