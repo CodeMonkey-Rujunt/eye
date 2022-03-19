@@ -145,7 +145,7 @@ def main(epochs=20, classes=8, learning_rate=5e-5, freeze=False):
 
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
-    prob_preds = []
+    y_pred = []
     y_true = []
     net.train()
     for epoch in range(epochs):
@@ -158,15 +158,14 @@ def main(epochs=20, classes=8, learning_rate=5e-5, freeze=False):
             loss = F.cross_entropy(logits, labels)
 
             probs = F.softmax(logits, dim=1)
-            prob_preds.append(probs.detach().cpu())
-            y_true.extend(labels.cpu().numpy())
+            y_pred += probs.detach().cpu()
+            y_true += labels.detach().cpu()
 
-        prob_preds = np.concatenate(prob_preds)
-        auc = metrics.roc_auc_score(y_true, prob_preds, average='weighted', multi_class='ovo')
+        auc = metrics.roc_auc_score(y_true, y_pred, average='weighted', multi_class='ovo')
         print(auc)
 
         labels_onehot = preprocessing.OneHotEncoder(sparse=False).fit_transform(np.array(y_true).reshape(len(y_true), 1))
-        final_score = odir_metric(labels_onehot, prob_preds)
+        final_score = odir_metric(labels_onehot, y_pred)
         print(final_score)
 
 if __name__ == '__main__':
