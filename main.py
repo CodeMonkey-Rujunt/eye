@@ -27,7 +27,7 @@ def get_color_distortion(s=1.0):
     color_distort = transforms.Compose([rnd_color_jitter, rnd_gray])
     return color_distort
 
-def odir_metric(self, gt_data, pr_data):
+def odir_metric(gt_data, pr_data):
     threshold = 0.5
     gt = gt_data.flatten()
     pr = pr_data.flatten()
@@ -86,64 +86,12 @@ def data_load(batch_size=32):
 
     return train_loader
 
-def train(epochs=20, classes=8, learning_rate=5e-5, freeze=False):
-    device = torch.device('cuda')
-
-    train_loader = data_load()
-
-    net = torch.hub.load('facebookresearch/swav', 'resnet50')
-
-    d_dim = net.fc.in_features
-    net.fc = lambda x: x
-        
-    if freeze:
-        for p in net.parameters():
-            p.requires_grad = False
-
-    linear_clf = nn.Linear(d_dim, classes)
-
-    optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
-
-    prob_preds = []
-    labels = []
-    net.train()
-    for epoch in range(epochs):
-        for images, labels in train_loader:
-            images = images.to(device)
-            labels = labels.to(device)
-
-            representations = net(images).detach()
-            logits = linear_clf(representations)
-            loss = F.cross_entropy(logits, labels)
-
-            probs = F.softmax(logits, dim=1)
-            prob_preds.append(probs.cpu().numpy())
-            labels.extend(y.cpu().numpy())
-
-        prob_preds = np.concatenate(prob_preds)
-        auc = metrics.roc_auc_score(labels, prob_preds, average='weighted', multi_class='ovo')
-        print(auc)
-
-        labels_onehot = preprocessing.OneHotEncoder(sparse=False).fit_transform(np.array(labels).reshape(len(labels), 1))
-        final_score = odir_metric(labels_onehot, prob_preds)
-        print(final_score)
-
 def test():
-    model_path = 'model/swav.pt'
-    net = model.SwavFinetuning.load_from_checkpoint(model_path, classes=8)
-
-    net = net.to(device)
-
-    odir_test = datasets.ODIR5K('test', transform)
-
-    test_dataloader = DataLoader(odir_test, batch_size=32) 
-
     prob_preds = []
-    labels = []
+    y_true = []
     y_pred = []
     net.eval()
     for images, labels in test_dataloader:
-        print(index, batch)
         images = images.to(device)
         labels = labels.to(device)
 
@@ -153,11 +101,11 @@ def test():
 
         probs = F.softmax(logits, dim=1)
         prob_preds.append(probs.cpu().numpy())
-        labels.extend(labels.cpu().numpy())
+        y_true.extend(labels.cpu().numpy())
         y_pred.extend(torch.argmax(probs, dim=1).cpu().numpy())
     
     prob_preds = np.concatenate(prob_preds)
-    auc = metrics.roc_auc_score(labels, prob_preds, average='weighted', multi_class='ovo')
+    auc = metrics.roc_auc_score(y_true, prob_preds, average='weighted', multi_class='ovo')
     print(auc)
     
     labels_onehot = preprocessing.OneHotEncoder(sparse=False).fit_transform(np.array(labels).reshape(len(labels), 1))
@@ -169,3 +117,57 @@ def test():
         target_names = ['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
         plot_confusion_matrix(cm, target_names=target_names, auc=auc, normalize=False)
         print(cm)
+
+class Identity(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        return x
+
+def main(epochs=20, classes=8, learning_rate=5e-5, freeze=False):
+    device = torch.device('cuda:1')
+
+    train_loader = data_load()
+
+    net = torch.hub.load('facebookresearch/swav', 'resnet50')
+    net = net.to(device)
+
+    d_dim = net.fc.in_features
+    net.fc = Identity()
+        
+    if freeze:
+        for p in net.parameters():
+            p.requires_grad = False
+
+    linear_clf = nn.Linear(d_dim, classes)
+    linear_clf = linear_clf.to(device)
+
+    optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
+
+    prob_preds = []
+    y_true = []
+    net.train()
+    for epoch in range(epochs):
+        for images, labels in train_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+
+            representations = net(images).detach()
+            logits = linear_clf(representations)
+            loss = F.cross_entropy(logits, labels)
+
+            probs = F.softmax(logits, dim=1)
+            prob_preds.append(probs.detach().cpu())
+            y_true.extend(labels.cpu().numpy())
+
+        prob_preds = np.concatenate(prob_preds)
+        auc = metrics.roc_auc_score(y_true, prob_preds, average='weighted', multi_class='ovo')
+        print(auc)
+
+        labels_onehot = preprocessing.OneHotEncoder(sparse=False).fit_transform(np.array(y_true).reshape(len(y_true), 1))
+        final_score = odir_metric(labels_onehot, prob_preds)
+        print(final_score)
+
+if __name__ == '__main__':
+    main()

@@ -5,33 +5,36 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
 from PIL import Image
+import os
 
 class ODIR5K(Dataset):
-    def __init__(self, mode, augmentations):
+    def __init__(self, mode, augmentations=None):
         super(ODIR5K, self).__init__()
-        self.csv_path = 'data/pytorch_fake{mode}.csv'
-        self.csv = pd.read_csv(self.csv_path)
+        self.mode = mode
+        self.csv_path = 'labels/pytorch_fake%s.csv' % (self.mode)
+        self.df = pd.read_csv(self.csv_path)
         self.augmentations = augmentations
     
     def __len__(self):
-        return len(self.csv)
+        return len(self.df)
 
     def __getitem__(self, index):
-        csv_line = self.csv.iloc[index]
+        csv_line = self.df.iloc[index]
         img_path = csv_line['path']
+        img_path = 'data/images/%s/%s' % (self.mode, img_path.split('/')[-1])
         label = torch.tensor(int(csv_line['label']))
         
-        image = Image.open(img_path).convert('RGB')
+        if os.path.exists(img_path):
+            image = Image.open(img_path).convert('RGB')
+        else:
+            print('%s not found' % (img_path))
         
-        if self.augmentations is not None:
+        if self.augmentations:
             image = self.augmentations(image)
         
         return image, label
 
 if __name__ == '__main__':
-    data = list(range(len(odir_train))), test_size=0.20, random_state=42)
-    train, test = train_test_split(data)
-
     transform = transforms.Compose([
         transforms.Resize((500, 500)),
         transforms.ToTensor(),

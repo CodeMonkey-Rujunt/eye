@@ -8,10 +8,7 @@ import os
 image_base = 'data/images'
 
 csvtrain = 'labels/train_gt.csv'
-fttrain = 'labels/train_proba.ft'
-
 csvval = 'labels/val_gt.csv'
-ftval = 'labels/val_proba.ft'
 
 device = torch.device('cuda')
 
@@ -30,7 +27,7 @@ model_path = 'model/swav.pt'
 #net = net.to(device)
 
 #net.eval()
-for csvfile, ftfile in ((csvtrain, fttrain), (csvval, ftval)):
+for csvfile in (csvtrain, csvval):
     df = pd.read_csv(csvfile)
     print(df)
 
@@ -69,4 +66,3 @@ for csvfile, ftfile in ((csvtrain, fttrain), (csvval, ftval)):
         'y_true': [y for y in y_true]})
 
     print(df)
-    #df.to_feather(ftfile)

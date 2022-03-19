@@ -1,14 +1,12 @@
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.layers import Dense
+import numpy as np
+import matplotlib.pyplot as plt
 from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense
 from tensorflow.keras.applications import EfficientNetB3, InceptionResNetV2
 from tensorflow.keras.applications.vgg16 import VGG16
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.callbacks import ModelCheckpoint
-import matplotlib.pyplot as plt
+from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
-import numpy as np
 import random
 
 BATCH_SIZE = 16
@@ -42,46 +40,35 @@ def focal_loss(gamma=2., alpha=4.):
 
     return focal_loss_fixed
 	
-if efficientnet:
-    base_model = EfficientNetB3(weights='imagenet')
-elif vgg16:
-    base_model = VGG16(weights='imagenet')
-else:
-    base_model = InceptionResNetV2(weights='imagenet')
+base_model = EfficientNetB3(weights='imagenet')
+out = base_model.get_layer('top_dropout').output
+
+#base_model = VGG16(weights='imagenet')
+#out = base_model.get_layer('fc2').output
+
+#base_model = InceptionResNetV2(weights='imagenet')
+#out = base_model.get_layer('avg_pool').output
 
 for layer in base_model.layers:
     layer.trainable = False
 
-if efficientnet:
-    out = base_model.get_layer('top_dropout').output
-elif vgg16:
-    out = vgg_conv.get_layer('fc2').output
-else:
-    out = base_model.get_layer('avg_pool').output
-
 out = Dense(8, activation='softmax', name='predictions')(out)
 
 model = Model(base_model.input, out)
+#model.load_weights('ft_efficientnetb3_top_dropout_lr-4_best_model.h5')
 
 # We compile the model
-if focalloss:
-    model.compile(optimizer='nadam', loss=focal_loss(gamma=2.0, alpha=0.2), metrics=['AUC'])
-else:
-    model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy', metrics=['AUC'])
+model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy', metrics=['AUC'])
+#model.compile(optimizer='nadam', loss=focal_loss(gamma=2.0, alpha=0.2), metrics=['AUC'])
 
-if ceh:
-    datagen = ImageDataGenerator(validation_split=0.2)
-else:
-    datagen = ImageDataGenerator(validation_split=0.2, preprocessing_function=preprocessing.CEH_cut_pipeline)
+datagen = ImageDataGenerator(validation_split=0.2)
+#datagen = ImageDataGenerator(validation_split=0.2, preprocessing_function=preprocessing.CEH_cut_pipeline)
 
-train_gen = datagen.flow_from_directory('/work/ocular-dataset/ODIR-5K-Flow/train/',
-        target_size=(244,244), batch_size=BATCH_SIZE, subset='training', seed=SEED)
+train_gen = datagen.flow_from_directory('train/',
+        target_size=(244, 244), batch_size=BATCH_SIZE, subset='training', seed=SEED)
 
-val_gen = datagen.flow_from_directory('/work/ocular-dataset/ODIR-5K-Flow/train/',
-        target_size=(244,244), batch_size=BATCH_SIZE, subset='validation', seed=SEED)
-
-es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5)
-mc = ModelCheckpoint(EXP_NAME + '_best_model.h5', monitor='val_auc', mode='max', verbose=1, save_best_only=True)
+val_gen = datagen.flow_from_directory('train/',
+        target_size=(244, 244), batch_size=BATCH_SIZE, subset='validation', seed=SEED)
 
 # fine-tune the model
 history = model.fit(
@@ -90,7 +77,7 @@ history = model.fit(
         epochs=EPOCHS,
         validation_data=val_gen,
         validation_steps=val_gen.n // BATCH_SIZE,
-        callbacks=[es, mc])
+        )
 
 loss_values = history.history['loss']
 #loss_values = history.history['auc']
@@ -100,11 +87,11 @@ epochs = range(1, len(loss_values)+1)
 fig, ax = plt.subplots()
 props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
 
-plt.plot(epochs, loss_values, '-o', label='Training Loss')
-plt.plot(epochs, loss_val_values, '-o', label='Validation Loss')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.title('Loss per Epochs')
+plt.plot(epochs, loss_values, '-o', label='training loss')
+plt.plot(epochs, loss_val_values, '-o', label='Validation loss')
+plt.xlabel('epochs')
+plt.ylabel('loss')
+plt.title('loss per epochs')
 plt.legend()
 
 textstr = 'best val_auc: ' + str(round(max(history.history['val_auc']),4))
