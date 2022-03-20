@@ -1,60 +1,9 @@
 import pandas as pd
 import numpy as np
 from sklearn import metrics
-import sys
-
-CSVFILE = '/work/ocular-dataset/full_df.csv'
-XLSXFILE = 'data/labels/data.xlsx'
-
-TRAIN_GT = 'labels/train_gt.csv'
-VAL_GT = 'labels/val_gt.csv'
 
 EYE_TRAIN_GT = 'labels/eye_labels_train.csv'
 EYE_VAL_GT = 'labels/eye_labels_val.csv'
-
-VAL_GT_XLSX = 'labels/val_gt.xlsx'
-
-GT_HEADER = ['ID', 'N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
-
-# read the ground truth from xlsx file and output case id and eight labels 
-def import_gt(filepath):
-    data = pd.ExcelFile(filepath)
-    df = book.parse(book.sheet_names[0])
-    data = [[int(df.row_values(i, 0, 1)[0])] + df.row_values(i, -8) for i in range(1, df.nrows)]
-
-    return np.array(data)
-
-# read the submitted predictions in csv format and output case id and eight labels 
-def import_pred(gt_data, filepath):
-    df = pd.read_csv(filepath)
-    pr_data = [[int(row[0])] + list(map(float, row[1:])) for i, row in df.iterrows()]
-    pr_data = np.array(pr_data)
-    
-    # Sort columns if they are not in predefined order
-    order = ['ID', 'N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
-    order_index = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-    order_dict = { item: ind for ind, item in enumerate(order) }
-    sort_index = [order_dict[item] for ind, item in enumerate(header) if item in order_dict]
-    wrong_col_order = 0
-    if (sort_index != order_index):
-        wrong_col_order = 1
-        pr_data[:, order_index] = pr_data[:, sort_index] 
-    
-    # Sort rows if they are not in predefined order
-    wrong_row_order = 0
-    order_dict = { item: ind for ind, item in enumerate(gt_data[:, 0]) }
-    order_index = [ v for v in order_dict.values() ]
-    sort_index = [order_dict[item] for ind, item in enumerate(pr_data[:, 0]) if item in order_dict]
-    if (sort_index != order_index):
-        wrong_row_order = 1
-        pr_data[order_index, :] = pr_data[sort_index, :]
-        
-    # If have missing results
-    missing_results = 0
-    if (gt_data.shape != pr_data.shape):
-        missing_results = 1
-
-    return pr_data, wrong_col_order, wrong_row_order, missing_results
 
 class ODIR_Dataset:
     def __init__(self):
@@ -106,30 +55,17 @@ class ODIR_Dataset:
         self.X_eye_val = eye_val['ID'].to_numpy()
 
     def evaluate(self, y_val_res, resultfile):
-        if resultfile in (TRAIN_GT, VAL_GT, VAL_GT_XLSX):
-            raise Exception('resultfile with same names as gt files')
-
         df_dict = dict()
         df_dict[GT_HEADER[0]] = self.X_val_id
         for i in range(1,len(GT_HEADER)):
             df_dict[GT_HEADER[i]] = y_val_res[:,i-1]
 
         df = pd.DataFrame(df_dict)
-
         #df.to_csv(resultfile, index=False)
 
         gt_data = import_gt(VAL_GT_XLSX)
         pr_data, wrong_col_order, wrong_row_order, missing_results = import_pred(gt_data, resultfile)
 
-        if wrong_col_order:
-            sys.exit(sys.argv[0], 'Error: Submission with disordered columns.')
-            
-        if wrong_row_order:
-            sys.exit(sys.argv[0], 'Error: Submission with disordered rows.')
-            
-        if missing_results:
-            sys.exit(sys.argv[0], 'Error: Incomplete submission with missing data.')
-            
         # calculate kappa, F-1 score and AUC value
         threshold = 0.5
         gt = gt_data[:, 1:].flatten()

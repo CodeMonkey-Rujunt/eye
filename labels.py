@@ -10,9 +10,14 @@ def main():
     # Myopia 0.9923 0.9946 0.9938 0.9942
     # Others
 
+    df = pd.read_csv('labels/eye_labels_train.csv', sep=',')
+    print(df)
+    print(df.loc[:, 'N':'O'].sum(axis=0))
+
     book = pd.ExcelFile('data/labels/ODIR-5K_Training_Annotations(Updated)_V2.xlsx')
     df = book.parse(book.sheet_names[0], index_col=0)
     print(df)
+    print(df.loc[:, 'N':'O'].sum(axis=0))
 
     print('Age stats:', df['Patient Age'].describe().to_dict())
     print('Sex stats:', df.groupby('Patient Sex').size().to_dict())
@@ -22,7 +27,8 @@ def main():
         for keyword in row['Left-Diagnostic Keywords'].split('，'):
             for label, value in zip(df.columns[6:], row['N':]):
                 if value:
-                    print(keyword, label, value)
+                    #print(keyword, label, value)
+                    pass
             #keyword_dict[keyword] = keyword_dict.get(keyword, 0) + 1 
 
         '''
