@@ -1,25 +1,78 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.applications import EfficientNetB3, InceptionResNetV2
-from tensorflow.keras.applications.vgg16 import VGG16
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.optimizers import Adam
-import tensorflow as tf
 import random
+import cv2
+import os
 
-BATCH_SIZE = 16
-EPOCHS = 20
-SEED = 13
-LR = 1e-4
+batch_size = 16
+learning_rate = 1e-4
 ceh = False
 focalloss = False
-efficientnet = True
 
-tf.random.set_seed(SEED)
-np.random.seed(SEED)
-random.seed(SEED)
+# create a CLAHE with L channel(Contrast Limited Adaptive Histogram Equalization)
+def CEH2(img):
+    img_lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    lab_planes = cv2.split(img_lab)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    lab_planes[0] = clahe.apply(lab_planes[0])
+    lab = cv2.merge(lab_planes)
+    cl1 = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+    return cl1
+
+# create a CLAHE (Contrast Limited Adaptive Histogram Equalization)
+def CEH(img):
+    img_bw = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    #clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize)
+    cl1 = clahe.apply(img_bw)
+    return cl1
+
+# create Equalization Histogram
+def EH(img):
+    img_bw = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    equ = cv2.equalizeHist(img_bw)
+    eh1 = np.hstack((img_bw, equ))
+    return eh1
+
+# reduce the black background
+def cut_img(img):
+    grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _ , thresholded = cv2.threshold(grayscale, 0, 255, cv2.THRESH_OTSU)
+    bbox = cv2.boundingRect(thresholded)
+    x, y, w, h = bbox
+    img_cut = img[y:y+h, x:x+w]
+    return img_cut
+
+# reduce the black background
+def cut_and_resize_to_original_img(img):
+    shp = img.shape[0:2]
+    grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _ , thresholded = cv2.threshold(grayscale, 0, 255, cv2.THRESH_OTSU)
+    bbox = cv2.boundingRect(thresholded)
+    x, y, w, h = bbox
+    img_cut = img[y:y+h, x:x+w]
+    bgr_final = cv2.cvtColor(img_cut, cv2.COLOR_LAB2BGR)
+    img_cut_resized = cv2.resize(bgr_final, shp, interpolation=cv2.INTER_AREA)
+    return img_cut_resized
+
+def CEH_cut_pipeline(img):
+    img_uint = img.astype(np.uint8)
+    img1 = cut_and_resize_to_original_img(img_uint)
+    img2 = CEH2(img1)
+    return img2
+
+def load_images_from_folder(path_folder):
+    PROC_FOLDER = path_folder + '_procEH/'
+    if os.path.isdir(os.path.dirname(PROC_FOLDER)) is False:
+        os.makedirs(os.path.dirname(PROC_FOLDER))
+
+    for filename in os.listdir(path_folder):
+        img = cv2.imread(os.path.join(path_folder, filename))
+        if img is not None:
+            img_proc = cut_img(img)
+            img_proc = EH(img) # change with EH
+            path = os.path.join(PROC_FOLDER, filename)
+            cv2.imwrite(path, img_proc)
 
 def focal_loss(gamma=2., alpha=4.):
     gamma = float(gamma)
@@ -49,13 +102,9 @@ out = base_model.get_layer('top_dropout').output
 #base_model = InceptionResNetV2(weights='imagenet')
 #out = base_model.get_layer('avg_pool').output
 
-for layer in base_model.layers:
-    layer.trainable = False
-
 out = Dense(8, activation='softmax', name='predictions')(out)
 
 model = Model(base_model.input, out)
-#model.load_weights('ft_efficientnetb3_top_dropout_lr-4_best_model.h5')
 
 # We compile the model
 model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy', metrics=['AUC'])
@@ -63,38 +112,3 @@ model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy', metrics
 
 datagen = ImageDataGenerator(validation_split=0.2)
 #datagen = ImageDataGenerator(validation_split=0.2, preprocessing_function=preprocessing.CEH_cut_pipeline)
-
-train_gen = datagen.flow_from_directory('train/',
-        target_size=(244, 244), batch_size=BATCH_SIZE, subset='training', seed=SEED)
-
-val_gen = datagen.flow_from_directory('train/',
-        target_size=(244, 244), batch_size=BATCH_SIZE, subset='validation', seed=SEED)
-
-# fine-tune the model
-history = model.fit(
-        train_gen,
-        steps_per_epoch=train_gen.n // BATCH_SIZE,
-        epochs=EPOCHS,
-        validation_data=val_gen,
-        validation_steps=val_gen.n // BATCH_SIZE,
-        )
-
-loss_values = history.history['loss']
-#loss_values = history.history['auc']
-loss_val_values = history.history['val_loss']
-epochs = range(1, len(loss_values)+1)
-
-fig, ax = plt.subplots()
-props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-
-plt.plot(epochs, loss_values, '-o', label='training loss')
-plt.plot(epochs, loss_val_values, '-o', label='Validation loss')
-plt.xlabel('epochs')
-plt.ylabel('loss')
-plt.title('loss per epochs')
-plt.legend()
-
-textstr = 'best val_auc: ' + str(round(max(history.history['val_auc']),4))
-ax.text(0.05, 0.95, textstr, transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
-
-plt.savefig('result.png')

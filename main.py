@@ -40,17 +40,14 @@ def metric(gt_data, pr_data):
     return final_score
 
 def data_load(args):
-    INPUT_IMG = 224
-
-    color_transform = [get_color_distortion(), RandomGaussianBlur()]
-    randomresizedcrop = transforms.RandomResizedCrop(INPUT_IMG)
-    normalize = transforms.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.228, 0.224, 0.225])
+    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225])
     transform = transforms.Compose([
-        randomresizedcrop,
+        transforms.RandomResizedCrop(224),
         transforms.RandomHorizontalFlip(p=0.5),
-        transforms.Compose(color_transform),
+        transforms.Compose([
+            get_color_distortion(),
+            RandomGaussianBlur(),
+            ]),
         transforms.ToTensor(),
         normalize,
         ])
@@ -61,7 +58,7 @@ def data_load(args):
 
     # build the test augmentations
     transform = transforms.Compose([
-        randomresizedcrop,
+        transforms.RandomResizedCrop(224),
         transforms.ToTensor(),
         normalize,
         ])
@@ -103,7 +100,8 @@ def test():
     print(cm)
 
 def main(args):
-    device = torch.device('cuda:1')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print('Using %s device.' % (device))
 
     train_loader, test_loader = data_load(args)
 
@@ -113,6 +111,10 @@ def main(args):
     net.fc = nn.Sequential(
             nn.Linear(num_features, args.classes),
             nn.Sigmoid())
+
+    if args.model_path:
+        net.load_state_dict(torch.load(args.model_path, map_location=device))
+        print('model state has loaded.')
 
     net = net.to(device)
 
@@ -145,15 +147,15 @@ def main(args):
             print(' loss %6.4f' % (train_loss / index), end='')
             print(' %6.3fsec' % (timeit.default_timer() - start_time), end='')
 
-        print('')
         aucs = [metrics.roc_auc_score(y_true[:, i], y_pred[:, i]) for i in range(args.classes)]
         auc_classes = ' '.join(['%5.3f' % (aucs[i]) for i in range(args.classes)])
-        print('The average AUC is %5.3f (%s)' % (np.mean(aucs), auc_classes))
+        print(' average AUC %5.3f (%s)' % (np.mean(aucs), auc_classes))
         torch.save(net.state_dict(), 'model/checkpoint.pth')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--epochs', default=20, type=int)
+    parser.add_argument('--model_path', default=None, type=str)
+    parser.add_argument('--epochs', default=150, type=int)
     parser.add_argument('--batch_size', default=32, type=int)
     parser.add_argument('--classes', default=8, type=int)
     parser.add_argument('--lr', default=1e-4, type=float) # 5e-5
