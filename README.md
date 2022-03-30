@@ -13,15 +13,15 @@ It consists of 8 labels, which are 6 major ocular disease labels and normal and 
 
 ```
                train   test  train+test      %
-Normal        2585.0  288.0      2873.0   44.9
-Diabetes      1448.0  160.0      1608.0   25.2
-Glaucoma       260.0   24.0       284.0    4.4
-Cataract       264.0   29.0       293.0    4.6
-AMD            242.0   24.0       266.0    4.2
-Hypertension   111.0   17.0       128.0    2.0
-Myopia         212.0   20.0       232.0    3.6
-Others         626.0   82.0       708.0   11.1
-Total         5748.0  644.0      6392.0  100.0
+Normal        2782.0  316.0      3098.0   42.9
+Diabetes      1614.0  181.0      1795.0   24.9
+Glaucoma       291.0   35.0       326.0    4.5
+Cataract       271.0   42.0       313.0    4.3
+AMD            257.0   23.0       280.0    3.9
+Hypertension   172.0   20.0       192.0    2.7
+Myopia         244.0   21.0       265.0    3.7
+Others         853.0   99.0       952.0   13.2
+Total         6484.0  737.0      7221.0  100.1
 ```
 
 ## Results
