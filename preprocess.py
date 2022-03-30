@@ -10,7 +10,6 @@ def main():
 
     book = pd.ExcelFile('data/labels/ODIR-5K_Training_Annotations(Updated)_V2.xlsx')
     df = book.parse(book.sheet_names[0], index_col=0)
-    print(df)
 
     print('Age', df['Patient Age'].describe().to_dict())
     print('Sex', df.groupby('Patient Sex').size().to_dict())

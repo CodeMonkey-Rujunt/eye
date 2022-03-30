@@ -1,10 +1,10 @@
-# Deep Learning models for Ocular Disease Recognition
+# Ocular Disease Recognition with PyTorch
 
 ## Introduction
 
 ## Dataset
 
-The ODIR-5K (Ocular Disease Intelligent Recognition) dataset consists of over 5000 fundus images.
+The `ODIR-5K` dataset consists of over 7000 eye fundus images.
 It consists of 8 labels, which are 6 major ocular disease labels and normal and other labels.
 
 <img src="figure/input.png" alt="input" width="300px" />
@@ -23,6 +23,10 @@ Myopia         244.0   21.0       265.0    3.7
 Others         853.0   99.0       952.0   13.2
 Total         6484.0  737.0      7221.0  100.1
 ```
+
+## Model
+
+Swappnig Assignments between Views (SwAV) with ResNet-50.
 
 ## Results
 
