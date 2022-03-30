@@ -12,16 +12,16 @@ It consists of 8 labels, which are 6 major ocular disease labels and normal and 
 ### Number of Labels
 
 ```
-               train   test  train+test      %
-Normal        2782.0  316.0      3098.0   42.9
-Diabetes      1614.0  181.0      1795.0   24.9
-Glaucoma       291.0   35.0       326.0    4.5
-Cataract       271.0   42.0       313.0    4.3
-AMD            257.0   23.0       280.0    3.9
-Hypertension   172.0   20.0       192.0    2.7
-Myopia         244.0   21.0       265.0    3.7
-Others         853.0   99.0       952.0   13.2
-Total         6484.0  737.0      7221.0  100.1
+              train  test  train+test    %
+Normal         2789   309        3098   42
+Diabetes       1619   176        1795   24
+Glaucoma        296    30         326    4
+Cataract        288    25         313    4
+AMD             252    28         280    3
+Hypertension    170    22         192    2
+Myopia          235    30         265    3
+Others          854    98         952   13
+Total          6503   718        7221  100
 ```
 
 ## Model
@@ -30,7 +30,7 @@ Swappnig Assignments between Views (SwAV) with ResNet-50.
 
 ## Results
 
-``
+```
 epoch   1/150 batch 180/180 loss 1.8155 229.013sec average AUC 0.580 (0.548 0.551 0.564 0.827 0.521 0.434 0.675 0.519)
 epoch   2/150 batch 180/180 loss 1.7033 213.026sec average AUC 0.670 (0.596 0.621 0.650 0.953 0.623 0.453 0.924 0.541)
 epoch   3/150 batch 180/180 loss 1.6810 215.956sec average AUC 0.692 (0.593 0.635 0.704 0.956 0.653 0.439 0.965 0.587)

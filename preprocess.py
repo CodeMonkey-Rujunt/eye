@@ -45,7 +45,7 @@ def main():
     stats['%'] = (stats['train+test'] / stats['train+test'].sum(axis=0) * 100).round(1)
     stats.loc['Total', :] = stats.sum(axis=0)
 
-    print(stats)
+    print(stats.astype(int))
 
 if __name__ == '__main__':
     main()
