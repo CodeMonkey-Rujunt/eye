@@ -1,13 +1,9 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import random
 import cv2
 import os
 
 batch_size = 16
 learning_rate = 1e-4
-ceh = False
-focalloss = False
 
 # create a CLAHE with L channel(Contrast Limited Adaptive Histogram Equalization)
 def CEH2(img):
@@ -104,11 +100,11 @@ out = base_model.get_layer('top_dropout').output
 
 out = Dense(8, activation='softmax', name='predictions')(out)
 
-model = Model(base_model.input, out)
+optimizer=Adam(lr=0.001)
+#optimizer='nadam'
+loss='categorical_crossentropy'
+#loss=focal_loss(gamma=2.0, alpha=0.2)
+metrics=['AUC']
 
-# We compile the model
-model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy', metrics=['AUC'])
-#model.compile(optimizer='nadam', loss=focal_loss(gamma=2.0, alpha=0.2), metrics=['AUC'])
-
-datagen = ImageDataGenerator(validation_split=0.2)
-#datagen = ImageDataGenerator(validation_split=0.2, preprocessing_function=preprocessing.CEH_cut_pipeline)
+validation_split=0.2
+#preprocessing_function=preprocessing.CEH_cut_pipeline

@@ -143,7 +143,7 @@ def main(args):
             y_true = torch.cat((y_true, labels.cpu()))
             y_pred = torch.cat((y_pred, outputs.detach().cpu()))
 
-            print('\repoch %2d/%2d batch %3d/%3d' % (epoch+1, args.epochs, index, len(train_loader)), end='')
+            print('\repoch %3d/%3d batch %3d/%3d' % (epoch+1, args.epochs, index, len(train_loader)), end='')
             print(' loss %6.4f' % (train_loss / index), end='')
             print(' %6.3fsec' % (timeit.default_timer() - start_time), end='')
 

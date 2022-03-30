@@ -11,7 +11,7 @@ class ODIR5K(Dataset):
     def __init__(self, mode, transform=None):
         super(ODIR5K, self).__init__()
         self.mode = mode
-        self.csvfile = 'labels/eye_labels_%s.csv' % (self.mode)
+        self.csvfile = 'labels/%s.csv' % (self.mode)
         self.df = pd.read_csv(self.csvfile)
         self.transform = transform
     
