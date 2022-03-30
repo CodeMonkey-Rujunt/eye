@@ -2,10 +2,15 @@
 
 ## Introduction
 
+Early diagnosis and treatment of ophthalmic diseases such as glaucoma and AMD are important because they significantly reduce quality of life.
+Eye fundus images are useful in identifying such ophthalmologic diseases.
+Here, eye fundus images and annotations are used as input of deep learning, and inference is performed using multi-label classification.
+
 ## Dataset
 
 The `ODIR-5K` dataset consists of over 7000 eye fundus images.
-It consists of 8 labels, which are 6 major ocular disease labels and normal and other labels.
+These are annotated with 8 labels, which are 6 major ocular disease labels and normal and other labels.
+The labels are annotatted on each of the left and right eye fundus images as multi-label data.
 
 <img src="figure/input.png" alt="input" width="300px" />
 
