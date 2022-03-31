@@ -31,20 +31,27 @@ Total          6503   718        7221  100
 
 ## Model
 
-Swappnig Assignments between Views (SwAV) with ResNet-50.
+`SwAV`, Swappnig Assignments between Views with ResNet-50.
+
 
 ## Results
 
 ```
-epoch   1/150 batch 180/180 loss 1.8155 229.013sec average AUC 0.580 (0.548 0.551 0.564 0.827 0.521 0.434 0.675 0.519)
-epoch   2/150 batch 180/180 loss 1.7033 213.026sec average AUC 0.670 (0.596 0.621 0.650 0.953 0.623 0.453 0.924 0.541)
-epoch   3/150 batch 180/180 loss 1.6810 215.956sec average AUC 0.692 (0.593 0.635 0.704 0.956 0.653 0.439 0.965 0.587)
-epoch   4/150 batch 180/180 loss 1.6712 252.009sec average AUC 0.700 (0.589 0.644 0.690 0.960 0.674 0.469 0.969 0.604)
-epoch   5/150 batch 180/180 loss 1.6636 356.533sec average AUC 0.699 (0.585 0.653 0.670 0.955 0.665 0.462 0.968 0.631)
+epoch   1/150 batch 197/197 loss 1.8741 241.446sec average AUC 0.582 (0.549 0.551 0.540 0.790 0.529 0.485 0.689 0.524)
+epoch   2/150 batch 197/197 loss 1.7675 237.068sec average AUC 0.670 (0.601 0.596 0.694 0.949 0.567 0.432 0.953 0.564)
+epoch   3/150 batch 197/197 loss 1.7469 237.833sec average AUC 0.679 (0.582 0.619 0.708 0.950 0.566 0.466 0.956 0.589)
+epoch   4/150 batch 197/197 loss 1.7401 237.183sec average AUC 0.676 (0.569 0.634 0.699 0.948 0.536 0.439 0.962 0.619)
+epoch   5/150 batch 197/197 loss 1.7295 236.221sec average AUC 0.681 (0.573 0.644 0.683 0.954 0.539 0.446 0.969 0.637)
 ...
-epoch 146/150 batch 180/180 loss 1.4670 216.017sec average AUC 0.888 (0.863 0.892 0.945 0.985 0.924 0.577 0.997 0.918)
-epoch 147/150 batch 180/180 loss 1.4749 215.701sec average AUC 0.882 (0.850 0.888 0.942 0.983 0.928 0.554 0.996 0.917)
-epoch 148/150 batch 180/180 loss 1.4767 215.474sec average AUC 0.887 (0.851 0.890 0.937 0.986 0.940 0.592 0.997 0.902)
-epoch 149/150 batch 180/180 loss 1.4753 218.688sec average AUC 0.884 (0.854 0.890 0.943 0.989 0.935 0.568 0.994 0.903)
-epoch 150/150 batch 180/180 loss 1.4695 221.733sec average AUC 0.890 (0.856 0.892 0.948 0.986 0.936 0.585 0.998 0.918)
+epoch 145/150 batch 197/197 loss 1.5418 237.228sec average AUC 0.879 (0.856 0.881 0.933 0.983 0.909 0.569 0.992 0.906)
+epoch 146/150 batch 197/197 loss 1.5449 235.480sec average AUC 0.879 (0.853 0.881 0.928 0.982 0.912 0.580 0.997 0.896)
+epoch 147/150 batch 197/197 loss 1.5356 236.611sec average AUC 0.883 (0.856 0.887 0.934 0.981 0.914 0.590 0.996 0.909)
+epoch 148/150 batch 197/197 loss 1.5434 235.995sec average AUC 0.880 (0.842 0.875 0.943 0.980 0.907 0.600 0.995 0.901)
+epoch 149/150 batch 197/197 loss 1.5454 235.399sec average AUC 0.879 (0.841 0.873 0.942 0.977 0.913 0.584 0.997 0.903)
+epoch 150/150 batch 197/197 loss 1.5371 233.698sec average AUC 0.878 (0.848 0.885 0.928 0.980 0.898 0.582 0.997 0.906)
 ```
+
+## Refrences
+
+- [SwAV](https://github.com/facebookresearch/swav)
+- [ODIR-5K](https://www.kaggle.com/datasets/andrewmvd/ocular-disease-recognition-odir5k)
