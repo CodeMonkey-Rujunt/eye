@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
+import re
 import os
 
 def main():
@@ -14,6 +15,14 @@ def main():
     print('Age', df['Patient Age'].describe().to_dict())
     print('Sex', df.groupby('Patient Sex').size().to_dict())
 
+    keyword_count = dict()
+    for index, row in df.iterrows():
+        for eye in ['Left', 'Right']:
+            keywords = row['%s-Diagnostic Keywords' % (eye)]
+            for keyword in re.split('，|,', keywords):
+                keyword_count[keyword] = keyword_count.get(keyword, 0) + 1
+    print(keyword_count, len(keyword_count))
+
     data = []
     for index, row in df.iterrows():
         for eye in ['Left', 'Right']:
@@ -21,7 +30,7 @@ def main():
             keywords = row['%s-Diagnostic Keywords' % (eye)]
 
             labels = [0] * 8
-            for keyword in keywords.split('，'):
+            for keyword in re.split('，|,', keywords):
                 if keyword in keyword_dict.keys():
                     labels[keyword_dict[keyword]] = 1
 
