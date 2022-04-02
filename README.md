@@ -17,16 +17,16 @@ The labels are annotatted on each of the left and right eye fundus images as mul
 ### Number of Labels
 
 ```
-              train  test  train+test    %
-Normal         2789   309        3098   42
-Diabetes       1619   176        1795   24
-Glaucoma        296    30         326    4
-Cataract        288    25         313    4
-AMD             252    28         280    3
-Hypertension    170    22         192    2
-Myopia          235    30         265    3
-Others          854    98         952   13
-Total          6503   718        7221  100
+               train   test  train+test      %
+Normal          2791    307        3098   42.9
+Diabetes        1603    192        1795   24.9
+Glaucoma         288     38         326    4.5
+Cataract         288     25         313    4.3
+AMD              259     21         280    3.9
+Hypertension     171     21         192    2.7
+Myopia           236     29         265    3.7
+Others           849    103         952   13.2
+Total           6485    736        7221  100.0
 ```
 
 ## Model

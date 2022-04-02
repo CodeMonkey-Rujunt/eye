@@ -16,7 +16,6 @@ def main():
 
     data = []
     for index, row in df.iterrows():
-
         for eye in ['Left', 'Right']:
             image = row['%s-Fundus' % (eye)]
             keywords = row['%s-Diagnostic Keywords' % (eye)]
@@ -42,10 +41,10 @@ def main():
     stats.index = disease_names
     stats.columns = ['train', 'test']
     stats['train+test'] = stats['train'] + stats['test']
-    stats['%'] = (stats['train+test'] / stats['train+test'].sum(axis=0) * 100).round(1)
+    stats['%'] = stats['train+test'] / stats['train+test'].sum(axis=0) * 100
     stats.loc['Total', :] = stats.sum(axis=0)
 
-    print(stats.astype(int))
+    print(stats.round(1))
 
 if __name__ == '__main__':
     main()
