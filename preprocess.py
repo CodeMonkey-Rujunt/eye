@@ -5,7 +5,7 @@ import os
 def main():
     disease_names = ['Normal', 'Diabetes', 'Glaucoma', 'Cataract', 'AMD', 'Hypertension', 'Myopia', 'Others']
 
-    book = pd.ExcelFile('data/labels/ODIR-5K_Training_Annotations(Updated)_V2.xlsx')
+    book = pd.ExcelFile('labels/ODIR-5K_Training_Annotations(Updated)_V2.xlsx')
     df = book.parse(book.sheet_names[0], index_col=0)
 
     for eye in ['Left', 'Right']:

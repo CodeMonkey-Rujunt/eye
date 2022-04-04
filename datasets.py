@@ -20,7 +20,7 @@ class ODIR5K(Dataset):
 
     def get_image(self, row, eye):
         image = row['%s-Fundus' % (eye)]
-        image = 'data/images/%s/%s' % (self.mode, image)
+        image = 'images/%s/%s' % (self.mode, image)
         if os.path.exists(image):
             image = Image.open(image).convert('RGB')
         else:

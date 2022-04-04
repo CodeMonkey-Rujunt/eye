@@ -12,7 +12,7 @@ The `ODIR-5K` dataset consists of over 7000 eye fundus images.
 These are annotated with 8 labels, which are 6 major ocular disease labels and normal and other labels.
 The labels are annotatted on each of the left and right eye fundus images as multi-label data.
 
-<img src="figure/input.png" alt="input" width="300px" />
+<img src="figure/input.png" alt="input" width="500px" />
 
 ### Number of Labels
 
