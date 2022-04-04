@@ -18,21 +18,29 @@ class ODIR5K(Dataset):
     def __len__(self):
         return len(self.df)
 
+    def get_image(self, row, eye):
+        image = row['%s-Fundus' % (eye)]
+        image = 'data/images/%s/%s' % (self.mode, image)
+        if os.path.exists(image):
+            image = Image.open(image).convert('RGB')
+        else:
+            print('%s not found' % (image))
+
+        return image
+
     def __getitem__(self, index):
         row = self.df.iloc[index]
-        imagefile = row['ID']
-        imagefile = 'data/images/%s/%s' % (self.mode, imagefile.split('/')[-1])
+
+        left = self.get_image(row, 'Left')
+        right = self.get_image(row, 'Right')
+
         label = torch.FloatTensor([int(i) for i in row['N':'O']])
         
-        if os.path.exists(imagefile):
-            image = Image.open(imagefile).convert('RGB')
-        else:
-            print('%s not found' % (imagefile))
-        
         if self.transform:
-            image = self.transform(image)
+            left = self.transform(left)
+            right = self.transform(right)
         
-        return image, label
+        return left, right, label
 
 if __name__ == '__main__':
     transform = transforms.Compose([
@@ -43,10 +51,17 @@ if __name__ == '__main__':
     dataset = ODIR5K('train', transform)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
 
-    for image, label in dataloader:
-        print(image, label)
-        image = image.view(3, 500, 500).permute(1, 2, 0)
-        plt.imshow(image)
+    for left_image, right_image, label in dataloader:
+        print(left_image.shape, right_image.shape, label)
+        left_image = left_image.view(3, 500, 500).permute(1, 2, 0)
+        right_image = right_image.view(3, 500, 500).permute(1, 2, 0)
+        
+        plt.figure(figsize=(12, 6))
+        plt.subplot(1, 2, 1)
+        plt.imshow(left_image)
+        plt.subplot(1, 2, 2)
+        plt.imshow(right_image)
+        plt.tight_layout()
         plt.savefig('figure/input.png')
 
         break

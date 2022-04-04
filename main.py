@@ -28,19 +28,17 @@ def get_color_distortion(s=1.0):
     color_distort = transforms.Compose([rnd_color_jitter, rnd_gray])
     return color_distort
 
-def metric(gt_data, pr_data):
-    threshold = 0.5
-    gt = gt_data.flatten()
-    pr = pr_data.flatten()
-    kappa = metrics.cohen_kappa_score(gt, pr > threshold)
-    f1 = metrics.f1_score(gt, pr > threshold, average='micro')
-    auc = metrics.roc_auc_score(gt, pr)
-    final_score = (kappa+f1+auc)/3.0
+def metric(y_true, y_pred, threshold=0.5):
+    kappa = metrics.cohen_kappa_score(y_true, y_pred > threshold)
+    f1 = metrics.f1_score(y_true, y_pred > threshold, average='micro')
+    auc = metrics.roc_auc_score(y_true, y_pred)
+    final_score = (kappa+f1+auc) / 3.0
     
     return final_score
 
 def data_load(args):
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225])
+    # build the augmentations
     transform = transforms.Compose([
         transforms.RandomResizedCrop(224),
         transforms.RandomHorizontalFlip(p=0.5),
@@ -56,54 +54,13 @@ def data_load(args):
     train_dataset = datasets.ODIR5K('train', transform)
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)
 
-    # build the test augmentations
-    transform = transforms.Compose([
-        transforms.RandomResizedCrop(224),
-        transforms.ToTensor(),
-        normalize,
-        ])
-
-    test_dataset = datasets.ODIR5K('test', transform)
-    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
-
-    return train_loader, test_loader
-
-def test():
-    prob_preds = []
-    y_true = []
-    y_pred = []
-    net.eval()
-    for images, labels in test_dataloader:
-        images = images.to(device)
-        labels = labels.to(device)
-
-        with torch.no_grad():
-            representations = net(images).detach()
-            logits = linear_clf(representations)
-
-        probs = F.softmax(logits, dim=1)
-        prob_preds.append(probs.cpu().numpy())
-        y_true.extend(labels.cpu().numpy())
-        y_pred.extend(torch.argmax(probs, dim=1).cpu().numpy())
-    
-    prob_preds = np.concatenate(prob_preds)
-    auc = metrics.roc_auc_score(y_true, prob_preds, average='weighted', multi_class='ovo')
-    print(auc)
-    
-    labels_onehot = preprocessing.OneHotEncoder(sparse=False).fit_transform(np.array(labels).reshape(len(labels), 1))
-    final_score = metric(labels_onehot, prob_preds)
-    print(final_score)
-    
-    cm = metrics.confusion_matrix(labels, y_pred)
-    target_names = ['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']
-    plot_confusion_matrix(cm, target_names=target_names, auc=auc, normalize=False)
-    print(cm)
+    return train_loader 
 
 def main(args):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Using %s device.' % (device))
 
-    train_loader, test_loader = data_load(args)
+    train_loader = data_load(args)
 
     net = torch.hub.load('facebookresearch/swav', 'resnet50')
 
@@ -128,11 +85,16 @@ def main(args):
         y_true = torch.FloatTensor()
         y_pred = torch.FloatTensor()
         train_loss = 0
-        for index, (images, labels) in enumerate(train_loader, 1):
-            images = images.to(device)
+        for index, (left_images, right_images, labels) in enumerate(train_loader, 1):
+            left_images = left_images.to(device)
+            right_images = right_images.to(device)
             labels = labels.to(device)
 
-            outputs = net(images)
+            left_outputs = net(left_images)
+            right_outputs = net(right_images)
+
+            outputs = (left_outputs + right_outputs) / 2
+
             loss = criterion(outputs, labels)
             train_loss += loss.item()
 
