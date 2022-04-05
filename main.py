@@ -5,7 +5,6 @@ from torch import nn
 from torch.nn import functional as F
 import torchvision.transforms as transforms
 from sklearn import metrics
-from sklearn import preprocessing
 import argparse
 import timeit
 import cv2
@@ -36,7 +35,7 @@ def metric(y_true, y_pred, threshold=0.5):
     
     return final_score
 
-def data_load(args):
+def data_load(args, phase='train'):
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225])
     # build the augmentations
     transform = transforms.Compose([
@@ -51,7 +50,7 @@ def data_load(args):
         ])
 
     # init the dataset and augmentations
-    train_dataset = datasets.ODIR5K('train', transform)
+    train_dataset = datasets.ODIR5K(phase, transform)
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)
 
     return train_loader 
@@ -60,7 +59,7 @@ def main(args):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Using %s device.' % (device))
 
-    train_loader = data_load(args)
+    train_loader = data_load(args, 'train')
 
     net = torch.hub.load('facebookresearch/swav', 'resnet50')
 
@@ -76,7 +75,6 @@ def main(args):
     net = net.to(device)
 
     optimizer = torch.optim.Adam(net.parameters(), lr=args.lr)
-    #optimizer = torch.optim.SGD(net.parameters(), lr=args.lr, momentum=args.momentum)
     criterion = torch.nn.CrossEntropyLoss()
 
     net.train()
@@ -113,6 +111,38 @@ def main(args):
         auc_classes = ' '.join(['%5.3f' % (aucs[i]) for i in range(args.classes)])
         print(' average AUC %5.3f (%s)' % (np.mean(aucs), auc_classes))
         torch.save(net.state_dict(), 'model/checkpoint.pth')
+
+    test_loader = data_load(args, 'test')
+
+    net.eval()
+    start_time = timeit.default_timer()
+    y_true = torch.FloatTensor()
+    y_pred = torch.FloatTensor()
+    test_loss = 0
+    for index, (left_images, right_images, labels) in enumerate(test_loader, 1):
+        left_images = left_images.to(device)
+        right_images = right_images.to(device)
+        labels = labels.to(device)
+
+        with torch.no_grad():
+            left_outputs = net(left_images)
+            right_outputs = net(right_images)
+
+        outputs = (left_outputs + right_outputs) / 2
+
+        loss = criterion(outputs, labels)
+        test_loss += loss.item()
+
+        y_true = torch.cat((y_true, labels.cpu()))
+        y_pred = torch.cat((y_pred, outputs.detach().cpu()))
+
+        print('\rtest batch %3d/%3d' % (index, len(test_loader)), end='')
+        print(' loss %6.4f' % (test_loss / index), end='')
+        print(' %6.3fsec' % (timeit.default_timer() - start_time), end='')
+
+    aucs = [metrics.roc_auc_score(y_true[:, i], y_pred[:, i]) for i in range(args.classes)]
+    auc_classes = ' '.join(['%5.3f' % (aucs[i]) for i in range(args.classes)])
+    print(' average AUC %5.3f (%s)' % (np.mean(aucs), auc_classes))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
