@@ -8,10 +8,9 @@ from PIL import Image
 import os
 
 class ODIR5K(Dataset):
-    def __init__(self, mode, transform=None):
+    def __init__(self, phase, transform=None):
         super(ODIR5K, self).__init__()
-        self.mode = mode
-        self.csvfile = 'labels/%s.csv' % (self.mode)
+        self.csvfile = 'labels/%s.csv' % (phase)
         self.df = pd.read_csv(self.csvfile)
         self.transform = transform
     
