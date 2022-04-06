@@ -95,11 +95,11 @@ def main(args):
 
             print('\repoch %3d/%3d batch %3d/%3d' % (epoch+1, args.epochs, index, len(train_loader)), end='')
             print(' loss %6.4f' % (train_loss / index), end='')
-            print(' %6.3fsec' % (timeit.default_timer() - start_time), end='')
+            print(' %5.1fsec' % (timeit.default_timer() - start_time), end='')
 
         aucs = [metrics.roc_auc_score(y_true[:, i], y_pred[:, i]) for i in range(args.classes)]
         auc_classes = ' '.join(['%5.3f' % (aucs[i]) for i in range(args.classes)])
-        print(' average AUC %5.3f (%s)' % (np.mean(aucs), auc_classes))
+        print(' mean AUC %5.3f (%s)' % (np.mean(aucs), auc_classes))
         torch.save(net.state_dict(), 'model/checkpoint.pth')
 
     net.eval()
@@ -126,11 +126,11 @@ def main(args):
 
         print('\rtest batch %3d/%3d' % (index, len(test_loader)), end='')
         print(' loss %6.4f' % (test_loss / index), end='')
-        print(' %6.3fsec' % (timeit.default_timer() - start_time), end='')
+        print(' %5.1fsec' % (timeit.default_timer() - start_time), end='')
 
     aucs = [metrics.roc_auc_score(y_true[:, i], y_pred[:, i]) for i in range(args.classes)]
     auc_classes = ' '.join(['%5.3f' % (aucs[i]) for i in range(args.classes)])
-    print(' average AUC %5.3f (%s)' % (np.mean(aucs), auc_classes))
+    print(' mean AUC %5.3f (%s)' % (np.mean(aucs), auc_classes))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
