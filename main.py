@@ -35,7 +35,10 @@ def metric(y_true, y_pred, threshold=0.5):
     
     return final_score
 
-def data_load(args, phase='train'):
+def main(args):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print('Using %s device.' % (device))
+
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225])
     # build the augmentations
     transform = transforms.Compose([
@@ -50,16 +53,11 @@ def data_load(args, phase='train'):
         ])
 
     # init the dataset and augmentations
-    train_dataset = datasets.ODIR5K(phase, transform)
+    train_dataset = datasets.ODIR5K('train', transform)
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)
 
-    return train_loader 
-
-def main(args):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print('Using %s device.' % (device))
-
-    train_loader = data_load(args, 'train')
+    test_dataset = datasets.ODIR5K('test', transform)
+    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
 
     net = torch.hub.load('facebookresearch/swav', 'resnet50')
 
@@ -111,8 +109,6 @@ def main(args):
         auc_classes = ' '.join(['%5.3f' % (aucs[i]) for i in range(args.classes)])
         print(' average AUC %5.3f (%s)' % (np.mean(aucs), auc_classes))
         torch.save(net.state_dict(), 'model/checkpoint.pth')
-
-    test_loader = data_load(args, 'test')
 
     net.eval()
     start_time = timeit.default_timer()
