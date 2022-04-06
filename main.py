@@ -27,14 +27,6 @@ def get_color_distortion(s=1.0):
     color_distort = transforms.Compose([rnd_color_jitter, rnd_gray])
     return color_distort
 
-def metric(y_true, y_pred, threshold=0.5):
-    kappa = metrics.cohen_kappa_score(y_true, y_pred > threshold)
-    f1 = metrics.f1_score(y_true, y_pred > threshold, average='micro')
-    auc = metrics.roc_auc_score(y_true, y_pred)
-    final_score = (kappa+f1+auc) / 3.0
-    
-    return final_score
-
 def main(args):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Using %s device.' % (device))

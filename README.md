@@ -57,5 +57,5 @@ test batch  11/ 11 loss 1.8079 20.485sec average AUC 0.895 (0.972 0.928 0.970 0.
 
 ## Refrences
 
-- [SwAV](https://github.com/facebookresearch/swav)
 - [ODIR-5K](https://www.kaggle.com/datasets/andrewmvd/ocular-disease-recognition-odir5k)
+- [SwAV](https://github.com/facebookresearch/swav)
