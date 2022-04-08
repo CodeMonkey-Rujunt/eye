@@ -17,29 +17,38 @@ class ODIR5K(Dataset):
     def __len__(self):
         return len(self.df)
 
-    def get_image(self, row, eye):
-        image = row['%s-Fundus' % (eye)]
-        image = 'images/%s' % (image)
+    def __getitem__(self, index, crop=True):
+        row = self.df.iloc[index]
+
+        image = 'images/%s' % (row['ID'])
         if os.path.exists(image):
             image = Image.open(image).convert('RGB')
         else:
             print('%s not found' % (image))
 
-        return image
+        label = torch.FloatTensor([int(i) for i in row['Normal':'Others']])
 
-    def __getitem__(self, index):
-        row = self.df.iloc[index]
+        if crop: # crop black pixels
+            image = np.array(image)
 
-        left = self.get_image(row, 'Left')
-        right = self.get_image(row, 'Right')
+            # Mask of coloured pixels.
+            mask = image > 0
 
-        label = torch.FloatTensor([int(i) for i in row['N':'O']])
+            # Coordinates of coloured pixels.
+            coordinates = np.argwhere(mask)
+
+            # Binding box of non-black pixels.
+            x0, y0, s0 = coordinates.min(axis=0)
+            x1, y1, s1 = coordinates.max(axis=0) + 1 # slices are exclusive at the top.
+
+            # Get the contents of the bounding box.
+            image = image[x0:x1, y0:y1]
+            image = Image.fromarray(image)
         
         if self.transform:
-            left = self.transform(left)
-            right = self.transform(right)
+            image = self.transform(image)
         
-        return left, right, label
+        return image, label
 
 if __name__ == '__main__':
     transform = transforms.Compose([
@@ -50,16 +59,11 @@ if __name__ == '__main__':
     dataset = ODIR5K('train', transform)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
 
-    for left_image, right_image, label in dataloader:
-        print(left_image.shape, right_image.shape, label)
-        left_image = left_image.view(3, 500, 500).permute(1, 2, 0)
-        right_image = right_image.view(3, 500, 500).permute(1, 2, 0)
+    for image, label in dataloader:
+        image = image.view(3, 500, 500).permute(1, 2, 0)
         
-        plt.figure(figsize=(12, 6))
-        plt.subplot(1, 2, 1)
-        plt.imshow(left_image)
-        plt.subplot(1, 2, 2)
-        plt.imshow(right_image)
+        plt.figure(figsize=(6, 6))
+        plt.imshow(image)
         plt.tight_layout()
         plt.savefig('figure/input.png')
 

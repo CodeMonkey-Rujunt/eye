@@ -3,18 +3,15 @@ from sklearn.model_selection import train_test_split
 import os
 
 def main():
-    disease_names = ['Normal', 'Diabetes', 'Glaucoma', 'Cataract', 'AMD', 'Hypertension', 'Myopia', 'Others']
-
     book = pd.ExcelFile('labels/ODIR-5K_Training_Annotations(Updated)_V2.xlsx')
-    df = book.parse(book.sheet_names[0], index_col=0)
+    patients = book.parse(book.sheet_names[0], index_col=0)
+    print(patients)
 
-    for eye in ['Left', 'Right']:
-        df['%s-Diagnostic Keywords' % (eye)] = df['%s-Diagnostic Keywords' % (eye)].replace('，', ',')
+    print('Age', patients['Patient Age'].describe().to_dict())
+    print('Sex', patients.groupby('Patient Sex').size().to_dict())
 
-    print('Age', df['Patient Age'].describe().to_dict())
-    print('Sex', df.groupby('Patient Sex').size().to_dict())
-
-    df = pd.concat([df.loc[:, ['Left-Fundus', 'Right-Fundus']], df.loc[:, 'N':'O']], axis=1)
+    df = pd.read_csv('labels/eye_labels.csv', sep=',')
+    del df['Total']
 
     train, test = train_test_split(df, train_size=0.9)
 
@@ -22,10 +19,9 @@ def main():
     test.to_csv('labels/test.csv', sep=',', index=False)
 
     stats = pd.concat([
-        train.loc[:, 'N':'O'].sum(axis=0),
-        test.loc[:, 'N':'O'].sum(axis=0),
+        train.loc[:, 'Normal':'Others'].sum(axis=0),
+        test.loc[:, 'Normal':'Others'].sum(axis=0),
         ], axis=1)
-    stats.index = disease_names
     stats.columns = ['train', 'test']
     stats['train+test'] = stats['train'] + stats['test']
     stats['%'] = stats['train+test'] / stats['train+test'].sum(axis=0) * 100

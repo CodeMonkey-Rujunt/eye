@@ -8,6 +8,7 @@ from sklearn import metrics
 import argparse
 import timeit
 import cv2
+import os
 
 import datasets
 
@@ -58,7 +59,7 @@ def main(args):
             nn.Linear(num_features, args.classes),
             nn.Sigmoid())
 
-    if args.model_path:
+    if args.model_path and os.path.exists(args.model_path):
         net.load_state_dict(torch.load(args.model_path, map_location=device))
         print('model state has loaded.')
 
@@ -73,15 +74,11 @@ def main(args):
         y_true = torch.FloatTensor()
         y_pred = torch.FloatTensor()
         train_loss = 0
-        for index, (left_images, right_images, labels) in enumerate(train_loader, 1):
-            left_images = left_images.to(device)
-            right_images = right_images.to(device)
+        for index, (images, labels) in enumerate(train_loader, 1):
+            images = images.to(device)
             labels = labels.to(device)
 
-            left_outputs = net(left_images)
-            right_outputs = net(right_images)
-
-            outputs = (left_outputs + right_outputs) / 2
+            outputs = net(images)
 
             loss = criterion(outputs, labels)
             train_loss += loss.item()
@@ -107,16 +104,12 @@ def main(args):
     y_true = torch.FloatTensor()
     y_pred = torch.FloatTensor()
     test_loss = 0
-    for index, (left_images, right_images, labels) in enumerate(test_loader, 1):
-        left_images = left_images.to(device)
-        right_images = right_images.to(device)
+    for index, (images, labels) in enumerate(test_loader, 1):
+        images = images.to(device)
         labels = labels.to(device)
 
         with torch.no_grad():
-            left_outputs = net(left_images)
-            right_outputs = net(right_images)
-
-        outputs = (left_outputs + right_outputs) / 2
+            outputs = net(images)
 
         loss = criterion(outputs, labels)
         test_loss += loss.item()

@@ -2,32 +2,31 @@
 
 ## Introduction
 
-Early diagnosis and treatment of ophthalmic diseases such as glaucoma, catarct and AMD are important because they significantly reduce quality of life (QoL).
+Early diagnosis and treatment of ophthalmic diseases such as glaucoma, catarct and AMD are important because they significantly reduce quality of life.
 Eye fundus images are useful in identifying such ophthalmologic diseases.
 Here I will introduce ocular disease recognition model that uses eye fundus images as input and trains multi-labels of ocular diseases in a supervised learning.
 The results of inference were evaluated by area under the curve (AUC) of reciever operating characteristics (ROC).
 
 ## Dataset
 
-The `ODIR-5K` dataset includes both eyes of more than 4000 patients.
+The `ODIR-5K` dataset includes both eye fundus images of 3500 patients for training.
 These eye fundus images are annotated with 8 labels indicating normal, 6 major ocular diseases and other ocuar diseases.
-Since labels are attached to both eyes, the ocular disease recognition model uses the fundus images of both eyes as input.
 
 <img src="figure/input.png" alt="input" width="500px" />
 
-### Number of Labels
+### Count of Eye Fundus Images for each Disease Labels
 
 ```
-             train   test  train+test        %
-Normal        1015    125        1140     27.7
-Diabetes      1012    116        1128     27.4
-Glaucoma       196     19         215      5.2
-Cataract       192     20         212      5.2
-AMD            145     19         164      4.0
-Hypertension    94      9         103      2.5
-Myopia         155     19         174      4.2
-Others         891     88         979     23.8
-Total         3700    415        4115    100.0
+               train   test  train+test      %
+Normal        2541.0  275.0      2816.0   40.0
+Diabetes      1598.0  180.0      1778.0   25.3
+Glaucoma       274.0   39.0       313.0    4.4
+Cataract       251.0   24.0       275.0    3.9
+AMD            250.0   30.0       280.0    4.0
+Hypertension   174.0   18.0       192.0    2.7
+Myopia         240.0   22.0       262.0    3.7
+Others         995.0  129.0      1124.0   16.0
+Total         6323.0  717.0      7040.0  100.0
 ```
 
 ## Model
@@ -58,4 +57,7 @@ test batch  11/ 11 loss 1.8079 20.4sec mean AUC 0.895 (0.972 0.928 0.970 0.992 0
 ## Refrences
 
 - [ODIR-5K](https://www.kaggle.com/datasets/andrewmvd/ocular-disease-recognition-odir5k)
+  Eye fundus images.
+- [ODIR-2019](https://github.com/JordiCorbilla/ocular-disease-intelligent-recognition-deep-learning)
+  Disease labels for each eye fundus image.
 - [SwAV](https://github.com/facebookresearch/swav)
