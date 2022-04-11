@@ -39,25 +39,23 @@ Total         6323.0  717.0      7040.0  100.0
 ```bash
 python main.py
 
-epoch   1/300 batch  99/ 99 loss 2.2418 235.7sec mean AUC 0.542 (0.533 0.522 0.555 0.713 0.505 0.438 0.566 0.502)
-epoch   2/300 batch  99/ 99 loss 2.0943 238.3sec mean AUC 0.653 (0.584 0.599 0.684 0.943 0.513 0.467 0.921 0.510)
-epoch   3/300 batch  99/ 99 loss 2.0550 239.3sec mean AUC 0.655 (0.590 0.613 0.702 0.957 0.544 0.373 0.965 0.500)
-epoch   4/300 batch  99/ 99 loss 2.0427 237.9sec mean AUC 0.664 (0.590 0.609 0.751 0.963 0.539 0.385 0.975 0.505)
-epoch   5/300 batch  99/ 99 loss 2.0321 238.5sec mean AUC 0.672 (0.598 0.619 0.748 0.955 0.534 0.427 0.983 0.513)
+epoch   1/150 batch 185/185 loss 1.9718 1368.4sec mean AUC 0.581 (0.537 0.555 0.534 0.840 0.530 0.462 0.670 0.520)
+epoch   2/150 batch 185/185 loss 1.8609 1360.0sec mean AUC 0.662 (0.580 0.609 0.631 0.947 0.589 0.419 0.944 0.575)
+epoch   3/150 batch 185/185 loss 1.8345 1355.4sec mean AUC 0.660 (0.552 0.629 0.634 0.951 0.541 0.406 0.960 0.607)
+epoch   4/150 batch 185/185 loss 1.8252 1344.9sec mean AUC 0.648 (0.535 0.626 0.644 0.932 0.451 0.389 0.969 0.636)
+epoch   5/150 batch 185/185 loss 1.8168 1343.1sec mean AUC 0.669 (0.521 0.634 0.677 0.958 0.480 0.457 0.970 0.655)
 ...
-epoch 296/300 batch  99/ 99 loss 1.7840 235.8sec mean AUC 0.892 (0.946 0.938 0.967 0.993 0.530 0.818 0.999 0.941)
-epoch 297/300 batch  99/ 99 loss 1.7882 234.9sec mean AUC 0.888 (0.947 0.930 0.962 0.994 0.531 0.805 0.999 0.939)
-epoch 298/300 batch  99/ 99 loss 1.7858 233.3sec mean AUC 0.894 (0.949 0.932 0.966 0.991 0.572 0.809 0.999 0.936)
-epoch 299/300 batch  99/ 99 loss 1.7865 235.7sec mean AUC 0.891 (0.949 0.936 0.974 0.995 0.557 0.780 0.999 0.940)
-epoch 300/300 batch  99/ 99 loss 1.7881 234.9sec mean AUC 0.899 (0.944 0.934 0.978 0.995 0.546 0.861 0.998 0.939)
+epoch 146/150 batch 185/185 loss 1.6063 1377.4sec mean AUC 0.887 (0.876 0.899 0.942 0.985 0.933 0.546 0.996 0.918)
+epoch 147/150 batch 185/185 loss 1.6042 1358.2sec mean AUC 0.884 (0.881 0.902 0.952 0.988 0.938 0.503 0.995 0.909)
+epoch 148/150 batch 185/185 loss 1.6031 1372.9sec mean AUC 0.883 (0.882 0.895 0.948 0.981 0.942 0.506 0.997 0.914)
+epoch 149/150 batch 185/185 loss 1.6107 1361.8sec mean AUC 0.879 (0.876 0.890 0.943 0.986 0.931 0.499 0.994 0.910)
+epoch 150/150 batch 185/185 loss 1.6011 1373.0sec mean AUC 0.885 (0.874 0.901 0.937 0.975 0.948 0.537 0.994 0.916)
 
-test batch  11/ 11 loss 1.8079 20.4sec mean AUC 0.895 (0.972 0.928 0.970 0.992 0.531 0.833 0.998 0.932)
+test batch  21/ 21 loss 1.7460 141.5sec mean AUC 0.818 (0.773 0.763 0.858 0.950 0.917 0.565 0.980 0.736)
 ```
 
 ## Refrences
 
 - [ODIR-5K](https://www.kaggle.com/datasets/andrewmvd/ocular-disease-recognition-odir5k)
-  Eye fundus images.
 - [ODIR-2019](https://github.com/JordiCorbilla/ocular-disease-intelligent-recognition-deep-learning)
-  Disease labels for each eye fundus image.
 - [SwAV](https://github.com/facebookresearch/swav)
