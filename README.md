@@ -12,7 +12,7 @@ The results of inference were evaluated by area under the curve (AUC) of recieve
 The `ODIR-5K` dataset includes both eye fundus images of 3500 patients for training.
 These eye fundus images are annotated with 8 labels indicating normal, 6 major ocular diseases and other ocuar diseases.
 
-<img src="figure/input.png" alt="input" width="500px" />
+<img src="figure/input.png" alt="input" width="400px" />
 
 ### Count of Eye Fundus Images for each Disease Labels
 
