@@ -1,4 +1,4 @@
-# Ocular Disease Recognition with SwAV using PyTorch
+# Ocular Disease Recognition with SwAV model
 
 ## Introduction
 
