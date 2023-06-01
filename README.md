@@ -1,4 +1,4 @@
-# Ocular Disease Recognition with SwAV model
+# Ocular Disease Recognition using SwAV model
 
 ## Introduction
 
