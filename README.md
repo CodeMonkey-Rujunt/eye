@@ -54,8 +54,8 @@ epoch 150/150 batch 185/185 loss 1.6011 1373.0sec mean AUC 0.885 (0.874 0.901 0.
 test batch  21/ 21 loss 1.7460 141.5sec mean AUC 0.818 (0.773 0.763 0.858 0.950 0.917 0.565 0.980 0.736)
 ```
 
-## Refrences
+## References
 
-- [ODIR-5K](https://www.kaggle.com/datasets/andrewmvd/ocular-disease-recognition-odir5k)
+- [ODIR-5K dataset](https://www.kaggle.com/datasets/andrewmvd/ocular-disease-recognition-odir5k)
 - [ODIR-2019](https://github.com/JordiCorbilla/ocular-disease-intelligent-recognition-deep-learning)
 - [SwAV](https://github.com/facebookresearch/swav)
