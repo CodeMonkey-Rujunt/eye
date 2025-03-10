@@ -1,6 +1,0 @@
-openpyxl
-xlrd==1.2.0
-pandas
-scikit-learn
-torch
-opencv-python
